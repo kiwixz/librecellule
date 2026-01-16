@@ -22,6 +22,7 @@
         "globals": "^17.0.0",
         "svelte": "^5.46.4",
         "svelte-check": "^4.3.5",
+        "sveltekit-html-minifier": "^1.0.4",
         "tailwindcss": "^4.1.18",
         "typescript": "^5.9.3",
         "typescript-eslint": "^8.53.0",
