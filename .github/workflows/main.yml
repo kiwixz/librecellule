@@ -1,0 +1,43 @@
+name: main
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: debian:13
+    steps:
+    - name: Install dependencies
+      run: |
+        apt-get update
+        apt-get -y upgrade npm
+    - name: Checkout
+      uses: actions/checkout@v6
+    - name: Setup cache
+      uses: actions/cache@v5
+      with:
+        path: ~/.npm
+        key: npm-${{ hashFiles('package-lock.json') }}
+    - name: Prepare
+      run: npm ci
+    - name: Build
+      run: npm run build
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v4
+      with:
+        path: build
+        retention-days: 90
+    - name: Lint
+      run: |
+        npm run check
+        npm run lint
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: github-pages
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - name: Deploy
+        uses: actions/deploy-pages@v4
