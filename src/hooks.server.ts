@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import { building } from '$app/environment'
 import { minify, type Options as MinifierOptions } from 'html-minifier-terser'
 
@@ -26,10 +27,31 @@ export async function handle({ event, resolve }) {
   let orig = ''
 
   return resolve(event, {
-    transformPageChunk: ({ html, done }) => {
+    transformPageChunk: async ({ html, done }) => {
       orig += html
-      if (done)
-        return minify(orig, minifierOptions)
+      if (done) {
+        let mini = await minify(orig, minifierOptions)
+
+        const findScripts = (html: string) => [...html.matchAll(/<script>(.*?)(<\/script>|$)/gs)].map(match => match[1])
+        const zip = (a: string[], b: string[]) => a.map((e, i) => [e, b[i]])
+        const hash = (script: string) => `'sha256-${createHash('sha256').update(script).digest('base64')}'`
+
+        for (const [origScript, miniScript] of zip(findScripts(orig), findScripts(mini))) {
+          let ok = false
+
+          mini = mini.replace(
+            hash(origScript),
+            () => {
+              ok = true
+              return hash(miniScript)
+            })
+
+          if (!ok)
+            throw new Error('Could not replace script hash')
+        }
+
+        return mini
+      }
     },
   })
 }
