@@ -16,9 +16,6 @@ const config = {
         removeRedundantAttributes: true,
       },
     }),
-    paths: {
-      base: '/librecellule',
-    },
   },
 }
 
