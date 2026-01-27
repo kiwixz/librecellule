@@ -3,5 +3,7 @@
 </script>
 
 <div class="h-dvh bg-green-900">
-  <Card rank=7 suit=1 />
+  <main>
+    <Card rank=7 suit=1 />
+  </main>
 </div>
