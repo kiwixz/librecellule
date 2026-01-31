@@ -7,6 +7,6 @@
   let suitStr = ['spade', 'heart', 'diamond', 'club'][props.suit]
 </script>
 
-<svg height=200 viewBox="0 0 57 88">
+<svg width="100%" viewBox="0 0 57 88">
   <use href="{spritesheet}#{rankStr}_{suitStr}" />
 </svg>
