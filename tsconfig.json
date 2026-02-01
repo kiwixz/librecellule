@@ -1,6 +1,7 @@
 {
     "extends": "./.svelte-kit/tsconfig.json",
     "compilerOptions": {
+        "allowArbitraryExtensions": true,
         "forceConsistentCasingInFileNames": true,
         "strict": true
     }

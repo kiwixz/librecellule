@@ -3,18 +3,26 @@ import { ints } from '$lib/range'
 export class Generator { // xoshiro128+
   #state: Uint32Array
 
-  constructor(state?: string) {
-    const stateInt = state
-      ? (i: number) => parseInt(state.slice(i * 8, (i + 1) * 8).padEnd(8, '0'), 16)
-      : () => random(2 ** 32)
+  constructor(seed?: string) {
+    const stateInt = seed
+      ? (i: number) => parseInt(seed.slice(i * 8, (i + 1) * 8).padEnd(8, '0'), 16)
+      : () => randomInt(2 ** 32)
     this.#state = new Uint32Array(ints(4, i => stateInt(i) || 0xaaaaaaaa))
   }
 
-  state() {
+  get state() {
     return this.#state.reduce((r, int) => r + int.toString(16).padStart(8, '0'), '')
   }
 
   next() {
+    return this.nextInt32() / 2 ** 32
+  }
+
+  nextInt(choices: number) {
+    return Math.floor(this.next() * choices)
+  }
+
+  nextInt32() {
     const result = (this.#state[0] + this.#state[3]) >>> 0
 
     const t = this.#state[1] << 9
@@ -31,6 +39,6 @@ export class Generator { // xoshiro128+
   }
 }
 
-export function random(choices: number) {
+export function randomInt(choices: number) {
   return Math.floor(Math.random() * choices)
 }
