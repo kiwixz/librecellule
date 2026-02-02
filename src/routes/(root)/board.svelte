@@ -1,7 +1,8 @@
 <script lang="ts">
   import Card from '$lib/card.svelte'
+  import { Game } from './game.svelte'
 
-  let props = $props()
+  const props: { game: Game } = $props()
 </script>
 
 <div class="">
