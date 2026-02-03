@@ -46,6 +46,8 @@
     }, { signal })
 
     on(self, 'pointercancel', cancel, { signal })
+
+    ev.stopPropagation()
   }
 </script>
 

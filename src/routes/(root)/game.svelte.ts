@@ -1,9 +1,10 @@
 import { Generator } from '$lib/random'
 import { ints } from '$lib/range'
+import type { BoardData, CardData } from './types.svelte'
 
 export class Game {
   #seed = $state()
-  #cards = $state({
+  #cards: BoardData = $state({
     depots: Array(4),
     foundations: Array(4),
     tableau: Array(8).fill([]),
@@ -25,7 +26,7 @@ export class Game {
     const popCard = () => {
       const i = generator.nextInt(deck.length)
       ;[deck[i], deck[deck.length - 1]] = [deck[deck.length - 1], deck[i]]
-      return deck.pop()
+      return deck.pop() as CardData
     }
 
     this.#cards = {

@@ -49,15 +49,20 @@
 
   <div class="flex p-[2%] gap-[1%]">
     {#each props.game?.cards.tableau as pile, pileIdx (pile)}
-      <div class="grid *:row-1 *:col-1">
-        {#each pile as card, cardIdx (card)}
-          <div style="margin-top: {cardIdx * 40}%">
-            <Draggable onmove={onTableauDragMove(pileIdx, cardIdx)} onend={onTableauDragEnd(pileIdx, cardIdx)}>
-              <Card {...card} />
-            </Draggable>
+      {#snippet recurse(cardIdx = 0)}
+        <Draggable onmove={onTableauDragMove(pileIdx, cardIdx)} onend={onTableauDragEnd(pileIdx, cardIdx)}>
+          <div class="grid *:row-1 *:col-1">
+            <Card {...pile[cardIdx]} />
+            {#if cardIdx < pile.length - 1}
+              <div class="mt-[round(40%,1px)]">
+                {@render recurse(cardIdx + 1)}
+              </div>
+            {/if}
           </div>
-        {/each}
-      </div>
+        </Draggable>
+      {/snippet}
+
+      {@render recurse()}
     {/each}
   </div>
 </div>
