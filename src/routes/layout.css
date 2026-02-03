@@ -1,11 +1,11 @@
-@import 'tailwindcss';
-
 @font-face {
   font-family: Inter;
   font-display: swap;
   src: url(@fontsource-variable/inter/files/inter-latin-opsz-normal.woff2);
 }
 
-body {
-  font-family: Inter, var(--font-sans);
+@import 'tailwindcss';
+
+@theme {
+  --default-font-family: Inter;
 }
