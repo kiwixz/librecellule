@@ -1,0 +1,8 @@
+{
+  "name": "LibreCellule",
+  "display": "standalone",
+  "start_url": "/",
+  "icons": [
+    { "src": "/favicon.svg" }
+  ]
+}
