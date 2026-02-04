@@ -5,6 +5,20 @@ import { sveltekit } from '@sveltejs/kit/vite'
 import tailwindcss from '@tailwindcss/vite'
 import JSON5 from 'json5'
 
+function configOverrider(): Plugin {
+  return {
+    name: 'config-overrider',
+    config(config) {
+      for (const output of [config?.build?.rollupOptions?.output].flat().filter(Boolean)) {
+        output!.assetFileNames = (output!.assetFileNames as string | undefined)?.replace(/(\[name\]\.)?\[hash\]/, '[hash:21]')
+        output!.chunkFileNames = (output!.chunkFileNames as string | undefined)?.replace(/(\[name\]\.)?\[hash\]/, '[hash:21]')
+        output!.entryFileNames = (output!.entryFileNames as string | undefined)?.replace(/(\[name\]\.)?\[hash\]/, '[hash:21]')
+      }
+      return config
+    },
+  }
+}
+
 function jsonMinifier(): Plugin {
   let config: ResolvedConfig
 
@@ -47,6 +61,7 @@ export default {
     sveltekit(),
     tailwindcss(),
 
+    configOverrider(),
     jsonMinifier(),
   ],
 }
