@@ -40,6 +40,9 @@ function jsonMinifier(): Plugin {
 }
 
 export default {
+  build: {
+    assetsInlineLimit: 0,
+  },
   plugins: [
     sveltekit(),
     tailwindcss(),
