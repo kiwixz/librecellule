@@ -5,6 +5,13 @@
 
   const props: { game: Game } = $props();
 
+  function onFoundationDragStart(card: number) {
+    return (ev: PointerEvent) => {
+      console.debug('foundation start', card, ev);
+      return false;
+    };
+  }
+
   function onFoundationDragMove(card: number) {
     return (ev: PointerEvent) => {
       console.debug('foundation move', card, ev);
@@ -14,6 +21,13 @@
   function onFoundationDragEnd(card: number) {
     return (ev: PointerEvent) => {
       console.debug('foundation end', card, ev);
+    };
+  }
+
+  function onTableauDragStart(pile: number, card: number) {
+    return (ev: PointerEvent) => {
+      console.debug('tableau start', pile, card, ev);
+      return true;
     };
   }
 
@@ -34,7 +48,7 @@
   <div class="flex">
     <div class="flex p-[2%] gap-[1%]">
       {#each props.game?.cards.depots as card, cardIdx (card)}
-        <Draggable onmove={onFoundationDragMove(cardIdx)} onend={onFoundationDragEnd(cardIdx)}>
+        <Draggable onstart={onFoundationDragStart(cardIdx)} onmove={onFoundationDragMove(cardIdx)} onend={onFoundationDragEnd(cardIdx)}>
           <Card {...card} />
         </Draggable>
       {/each}
@@ -50,7 +64,7 @@
   <div class="flex p-[2%] gap-[1%]">
     {#each props.game?.cards.tableau as pile, pileIdx (pile)}
       {#snippet recurse(cardIdx = 0)}
-        <Draggable onmove={onTableauDragMove(pileIdx, cardIdx)} onend={onTableauDragEnd(pileIdx, cardIdx)}>
+        <Draggable onstart={onTableauDragStart(pileIdx, cardIdx)} onmove={onTableauDragMove(pileIdx, cardIdx)} onend={onTableauDragEnd(pileIdx, cardIdx)}>
           <div class="grid *:row-1 *:col-1">
             <Card {...pile[cardIdx]} />
             {#if cardIdx < pile.length - 1}

@@ -4,8 +4,9 @@
 
   const props: {
     children: Snippet;
-    onmove: (ev: PointerEvent) => void;
-    onend: (ev: PointerEvent) => void;
+    onstart?: (ev: PointerEvent) => boolean;
+    onmove?: (ev: PointerEvent) => void;
+    onend?: (ev: PointerEvent) => void;
   } = $props();
 
   let self: HTMLElement;
@@ -18,6 +19,9 @@
 
   function onpointerdown(ev: PointerEvent) {
     if (ev.button !== 0)
+      return;
+
+    if (!props.onstart?.(ev))
       return;
 
     dragging = true;
@@ -41,8 +45,8 @@
     }, { signal });
 
     on(self, 'pointerup', () => {
-      props.onend?.(ev);
       cancel();
+      props.onend?.(ev);
     }, { signal });
 
     on(self, 'pointercancel', cancel, { signal });
