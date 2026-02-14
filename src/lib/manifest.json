@@ -4,5 +4,6 @@
   "start_url": "/",
   "icons": [
     { "src": "/favicon.svg" }
-  ]
+  ],
+  "background_color": "#004f33"
 }

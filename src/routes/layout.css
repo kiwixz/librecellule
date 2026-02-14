@@ -9,3 +9,7 @@
 @theme {
   --default-font-family: Inter;
 }
+
+:root {
+  color: #00ff9a
+}

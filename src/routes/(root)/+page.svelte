@@ -9,7 +9,7 @@
   }
 </script>
 
-<div class="min-h-dvh bg-green-900 text-green-200">
+<div class="min-h-dvh">
   <main class="max-w-[120lvmin] mx-auto">
     <Board {game} />
   </main>
