@@ -11,5 +11,6 @@
 }
 
 :root {
-  color: #00ff9a
+  color: #00ff9a;
+  overscroll-behavior-y: contain;
 }
