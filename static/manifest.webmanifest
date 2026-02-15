@@ -1,9 +1,10 @@
 {
   "name": "LibreCellule",
-  "display": "standalone",
   "start_url": "/",
   "icons": [
     { "src": "/favicon.svg" }
   ],
-  "background_color": "#004f33"
+
+  "background_color": "#004f33",
+  "display": "standalone"
 }
