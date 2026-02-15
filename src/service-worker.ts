@@ -1,19 +1,18 @@
 /// <reference lib="webworker" />
 /// <reference types="@sveltejs/kit" />
 
-import { build, files, version } from '$service-worker'
+import { build, files, prerendered, version } from '$service-worker'
 
 const self = globalThis.self as unknown as ServiceWorkerGlobalScope
-
-const ASSETS = [
-  ...build,
-  ...files,
-]
 
 self.addEventListener('install', (ev) => {
   ev.waitUntil((async () => {
     const cache = await caches.open(version)
-    await cache.addAll(ASSETS.concat('/'))
+    await cache.addAll([
+      ...prerendered,
+      ...build,
+      ...files,
+    ])
   })())
 })
 
@@ -41,7 +40,7 @@ self.addEventListener('fetch', (ev) => {
       if (response.ok)
         cache.put(ev.request, response.clone())
     }
-    else if (!ASSETS.includes(url.pathname)) {
+    else if (!build.includes(url.pathname)) {
       fetch(ev.request).then((response) => {
         if (response.ok)
           cache.put(ev.request, response)
