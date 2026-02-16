@@ -3,7 +3,7 @@ import { ints } from '$lib/range'
 import type { BoardData, CardData } from './types.svelte'
 
 export class Game {
-  #seed = $state()
+  #seed = $state('')
   #cards: BoardData = $state({
     depots: Array(4),
     foundations: Array(4),
@@ -14,7 +14,7 @@ export class Game {
     return this.#seed
   }
 
-  get cards() {
+  get cards(): Readonly<BoardData> {
     return this.#cards
   }
 
