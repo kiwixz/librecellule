@@ -40,7 +40,7 @@
     };
 
     on(self, 'pointermove', (ev) => {
-      self.style.translate = `${ev.clientX - startX}px ${ev.clientY - startY}px`;
+      self.style.translate = `${ev.x - startX}px ${ev.y - startY}px`;
       props.onmove?.(ev);
     }, { signal });
 
@@ -56,7 +56,7 @@
 </script>
 
 <div bind:this={self} class="touch-none"
-    style:will-change="{dragging ? 'translate' : null}"
+    style:will-change={dragging ? 'translate' : null}
     {oncontextmenu} {onpointerdown}>
   {@render props.children()}
 </div>
