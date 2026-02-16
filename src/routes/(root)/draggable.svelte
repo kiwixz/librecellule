@@ -1,53 +1,53 @@
 <script lang="ts">
-  import type { Snippet } from 'svelte'
-  import { on } from 'svelte/events'
+  import type { Snippet } from 'svelte';
+  import { on } from 'svelte/events';
 
   const props: {
-    children: Snippet
-    onmove: (ev: PointerEvent) => void
-    onend: (ev: PointerEvent) => void
-  } = $props()
+    children: Snippet;
+    onmove: (ev: PointerEvent) => void;
+    onend: (ev: PointerEvent) => void;
+  } = $props();
 
-  let self: HTMLElement
-  let dragging = $state(false)
+  let self: HTMLElement;
+  let dragging = $state(false);
 
   function oncontextmenu(ev: Event) {
     if (dragging)
-      ev.preventDefault()
+      ev.preventDefault();
   }
 
   function onpointerdown(ev: PointerEvent) {
     if (ev.button !== 0)
-      return
+      return;
 
-    dragging = true
-    self.setPointerCapture(ev.pointerId)
+    dragging = true;
+    self.setPointerCapture(ev.pointerId);
 
-    const startX = ev.x
-    const startY = ev.y
+    const startX = ev.x;
+    const startY = ev.y;
 
-    const controller = new AbortController()
-    const { signal } = controller
+    const controller = new AbortController();
+    const { signal } = controller;
     const cancel = () => {
-      controller.abort()
+      controller.abort();
 
-      self.style.translate = ''
-      dragging = false
-    }
+      self.style.translate = '';
+      dragging = false;
+    };
 
     on(self, 'pointermove', (ev) => {
-      self.style.translate = `${ev.clientX - startX}px ${ev.clientY - startY}px`
-      props.onmove?.(ev)
-    }, { signal })
+      self.style.translate = `${ev.clientX - startX}px ${ev.clientY - startY}px`;
+      props.onmove?.(ev);
+    }, { signal });
 
     on(self, 'pointerup', () => {
-      props.onend?.(ev)
-      cancel()
-    }, { signal })
+      props.onend?.(ev);
+      cancel();
+    }, { signal });
 
-    on(self, 'pointercancel', cancel, { signal })
+    on(self, 'pointercancel', cancel, { signal });
 
-    ev.stopPropagation()
+    ev.stopPropagation();
   }
 </script>
 

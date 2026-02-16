@@ -1,5 +1,5 @@
-import { building } from '$app/environment'
-import { minify, type Options as MinifierOptions } from 'html-minifier-terser'
+import { building } from '$app/environment';
+import { minify, type Options as MinifierOptions } from 'html-minifier-terser';
 
 const minifierOptions: MinifierOptions = {
   collapseBooleanAttributes: true,
@@ -17,19 +17,19 @@ const minifierOptions: MinifierOptions = {
   removeScriptTypeAttributes: true,
   removeStyleLinkTypeAttributes: true,
   useShortDoctype: true,
-}
+};
 
 export async function handle({ event, resolve }) {
   if (!building)
-    return resolve(event)
+    return resolve(event);
 
-  let orig = ''
+  let orig = '';
 
   return resolve(event, {
     transformPageChunk: ({ html, done }) => {
-      orig += html
+      orig += html;
       if (done)
-        return minify(orig, minifierOptions)
+        return minify(orig, minifierOptions);
     },
-  })
+  });
 }

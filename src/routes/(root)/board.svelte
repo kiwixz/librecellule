@@ -1,32 +1,32 @@
 <script lang="ts">
-  import Card from '$lib/card.svelte'
-  import Draggable from './draggable.svelte'
-  import { Game } from './game.svelte'
+  import Card from '$lib/card.svelte';
+  import Draggable from './draggable.svelte';
+  import { Game } from './game.svelte';
 
-  const props: { game: Game } = $props()
+  const props: { game: Game } = $props();
 
   function onFoundationDragMove(card: number) {
     return (ev: PointerEvent) => {
-      console.debug('foundation move', card, ev)
-    }
+      console.debug('foundation move', card, ev);
+    };
   }
 
   function onFoundationDragEnd(card: number) {
     return (ev: PointerEvent) => {
-      console.debug('foundation end', card, ev)
-    }
+      console.debug('foundation end', card, ev);
+    };
   }
 
   function onTableauDragMove(pile: number, card: number) {
     return (ev: PointerEvent) => {
-      console.debug('tableau move', pile, card, ev)
-    }
+      console.debug('tableau move', pile, card, ev);
+    };
   }
 
   function onTableauDragEnd(pile: number, card: number) {
     return (ev: PointerEvent) => {
-      console.debug('tableau end', pile, card, ev)
-    }
+      console.debug('tableau end', pile, card, ev);
+    };
   }
 </script>
 

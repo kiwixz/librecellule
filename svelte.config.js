@@ -1,4 +1,4 @@
-import adapter from '@sveltejs/adapter-static'
+import adapter from '@sveltejs/adapter-static';
 
 /** @type {import('@sveltejs/kit').Config} */
 export default {
@@ -9,4 +9,4 @@ export default {
     adapter: adapter(),
     inlineStyleThreshold: Infinity,
   },
-}
+};
