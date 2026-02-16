@@ -8,3 +8,18 @@ export interface BoardData {
   foundations: CardData[];
   tableau: CardData[][];
 }
+
+export interface DepotCardRef {
+  zone: 'depots';
+  cellIdx: number;
+}
+export interface FoundationCardRef {
+  zone: 'foundations';
+  cellIdx: number;
+}
+export interface TableauCardRef {
+  zone: 'tableau';
+  pileIdx: number;
+  cardIdx: number;
+}
+export type CardRef = DepotCardRef | FoundationCardRef | TableauCardRef;

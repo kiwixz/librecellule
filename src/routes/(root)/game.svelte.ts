@@ -4,7 +4,7 @@ import type { BoardData, CardData } from './types';
 
 export class Game {
   #seed = $state('');
-  #cards: BoardData = $state({
+  #board: BoardData = $state({
     depots: Array(4),
     foundations: Array(4),
     tableau: Array(8).fill([]),
@@ -14,8 +14,8 @@ export class Game {
     return this.#seed;
   }
 
-  get cards(): Readonly<BoardData> {
-    return this.#cards;
+  get board(): Readonly<BoardData> {
+    return this.#board;
   }
 
   reset() {
@@ -29,7 +29,7 @@ export class Game {
       return deck.pop() as CardData;
     };
 
-    this.#cards = {
+    this.#board = {
       depots: ints(4, i => ({ rank: 1 + i, suit: 3 })),
       foundations: ints(4, i => ({ rank: 0, suit: i })),
       tableau: ints(8, i => ints(i < 4 ? 7 : 6, popCard)),

@@ -2,69 +2,59 @@
   import Card from '$lib/card.svelte';
   import Draggable from './draggable.svelte';
   import { Game } from './game.svelte';
+  import type { DepotCardRef, TableauCardRef } from './types';
 
   const props: { game: Game } = $props();
 
-  function onFoundationDragStart(card: number) {
+  function onDragStart(card: DepotCardRef | TableauCardRef) {
     return (ev: PointerEvent) => {
-      console.debug('foundation start', card, ev);
-      return false;
-    };
-  }
-
-  function onFoundationDragMove(card: number) {
-    return (ev: PointerEvent) => {
-      console.debug('foundation move', card, ev);
-    };
-  }
-
-  function onFoundationDragEnd(card: number) {
-    return (ev: PointerEvent) => {
-      console.debug('foundation end', card, ev);
-    };
-  }
-
-  function onTableauDragStart(pile: number, card: number) {
-    return (ev: PointerEvent) => {
-      console.debug('tableau start', pile, card, ev);
+      console.debug('drag start', card, ev);
       return true;
     };
   }
 
-  function onTableauDragMove(pile: number, card: number) {
+  function onDragMove(card: DepotCardRef | TableauCardRef) {
     return (ev: PointerEvent) => {
-      console.debug('tableau move', pile, card, ev);
+      console.debug('drag move', card, ev);
     };
   }
 
-  function onTableauDragEnd(pile: number, card: number) {
+  function onDragEnd(card: DepotCardRef | TableauCardRef) {
     return (ev: PointerEvent) => {
-      console.debug('tableau end', pile, card, ev);
+      console.debug('drag end', card, ev);
     };
   }
 </script>
 
 <div>
   <div class="flex">
-    <div class="flex p-[2%] gap-[1%]">
-      {#each props.game?.cards.depots as card, cardIdx (card)}
-        <Draggable onstart={onFoundationDragStart(cardIdx)} onmove={onFoundationDragMove(cardIdx)} onend={onFoundationDragEnd(cardIdx)}>
+    <div class="piles">
+      {#each props.game?.board.depots as card, cellIdx (card)}
+        {@const ref: DepotCardRef = { zone: 'depots', cellIdx }}
+        <Draggable
+            onstart={onDragStart(ref)}
+            onmove={onDragMove(ref)}
+            onend={onDragEnd(ref)}>
           <Card {...card} />
         </Draggable>
       {/each}
     </div>
 
-    <div class="flex p-[2%] gap-[1%]">
-      {#each props.game?.cards.foundations as card (card)}
+    <div class="piles">
+      {#each props.game?.board.foundations as card (card)}
         <Card {...card} />
       {/each}
     </div>
   </div>
 
-  <div class="flex p-[2%] gap-[1%]">
-    {#each props.game?.cards.tableau as pile, pileIdx (pile)}
+  <div class="piles">
+    {#each props.game?.board.tableau as pile, pileIdx (pile)}
       {#snippet recurse(cardIdx = 0)}
-        <Draggable onstart={onTableauDragStart(pileIdx, cardIdx)} onmove={onTableauDragMove(pileIdx, cardIdx)} onend={onTableauDragEnd(pileIdx, cardIdx)}>
+        {@const ref: TableauCardRef = { zone: 'tableau', pileIdx, cardIdx }}
+        <Draggable
+            onstart={onDragStart(ref)}
+            onmove={onDragMove(ref)}
+            onend={onDragEnd(ref)}>
           <div class="grid *:row-1 *:col-1">
             <Card {...pile[cardIdx]} />
             {#if cardIdx < pile.length - 1}
@@ -80,3 +70,11 @@
     {/each}
   </div>
 </div>
+
+<style>
+.piles {
+  display: flex;
+  padding: 2%;
+  gap: 1%;
+}
+</style>
