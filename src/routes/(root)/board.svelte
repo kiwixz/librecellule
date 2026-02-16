@@ -3,13 +3,13 @@
   import { unreachable } from '$lib/unreachable';
   import Draggable from './draggable.svelte';
   import { Game } from './game.svelte';
-  import type { DepotCardRef, TableauCardRef } from './types';
+  import { BoardZone, type DepotCardRef, type TableauCardRef } from './types';
 
   type DragDestination = {
-    zone: 'depots';
+    zone: BoardZone.Depots;
     cellIdx: number;
   } | {
-    zone: 'tableau';
+    zone: BoardZone.Tableau;
     pileIdx: number;
   } | null;
 
@@ -25,17 +25,12 @@
     if (!destination)
       return null;
 
-    if (destination.dataset.zone === 'depots') {
-      return {
-        zone: destination.dataset.zone,
-        cellIdx: parseInt(destination.dataset.cellIdx!),
-      };
-    }
-    else if (destination.dataset.zone === 'tableau') {
-      return {
-        zone: destination.dataset.zone,
-        pileIdx: parseInt(destination.dataset.pileIdx!),
-      };
+    const zone = parseInt(destination.dataset.zone!);
+    switch (zone) {
+      case BoardZone.Depots:
+        return { zone, cellIdx: parseInt(destination.dataset.cellIdx!) };
+      case BoardZone.Tableau:
+        return { zone, pileIdx: parseInt(destination.dataset.pileIdx!) };
     }
 
     unreachable();
@@ -53,11 +48,11 @@
       console.debug('drag move', card, ev);
 
       let destinationRef = findDragDestination(ev.x, ev.y);
-      if (destinationRef?.zone === 'depots' && (card.zone !== 'depots' || destinationRef.cellIdx !== card.cellIdx)) {
+      if (destinationRef?.zone === BoardZone.Depots && (card.zone !== destinationRef.zone || destinationRef.cellIdx !== card.cellIdx)) {
         highlightedDepotCell = destinationRef.cellIdx;
         highlightedTableauPile = null;
       }
-      else if (destinationRef?.zone === 'tableau' && (card.zone !== 'tableau' || destinationRef.pileIdx !== card.pileIdx)) {
+      else if (destinationRef?.zone === BoardZone.Tableau && (card.zone !== destinationRef.zone || destinationRef.pileIdx !== card.pileIdx)) {
         highlightedDepotCell = null;
         highlightedTableauPile = destinationRef.pileIdx;
       }
@@ -82,8 +77,8 @@
   <div class="flex">
     <div class="piles">
       {#each props.game?.board.depots as card, cellIdx (card)}
-        {@const ref: DepotCardRef = { zone: 'depots', cellIdx }}
-        <div data-zone="depots" data-cell-idx={cellIdx}
+        {@const ref: DepotCardRef = { zone: BoardZone.Depots, cellIdx }}
+        <div data-zone={ref.zone} data-cell-idx={cellIdx}
             class="drag-destination"
             class:highlighted={highlightedDepotCell === cellIdx}>
           <Draggable
@@ -106,8 +101,8 @@
   <div class="piles">
     {#each props.game?.board.tableau as pile, pileIdx (pile)}
       {#snippet recurse(cardIdx = 0)}
-        {@const ref: TableauCardRef = { zone: 'tableau', pileIdx, cardIdx }}
-        <div data-zone="tableau" data-pile-idx={pileIdx}
+        {@const ref: TableauCardRef = { zone: BoardZone.Tableau, pileIdx, cardIdx }}
+        <div data-zone={ref.zone} data-pile-idx={pileIdx}
             class="drag-destination"
             class:highlighted={highlightedTableauPile === pileIdx}>
           <Draggable

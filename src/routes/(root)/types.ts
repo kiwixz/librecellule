@@ -9,16 +9,22 @@ export interface BoardData {
   tableau: CardData[][];
 }
 
+export enum BoardZone {
+  Depots,
+  Foundations,
+  Tableau,
+};
+
 export interface DepotCardRef {
-  zone: 'depots';
+  zone: BoardZone.Depots;
   cellIdx: number;
 }
 export interface FoundationCardRef {
-  zone: 'foundations';
+  zone: BoardZone.Foundations;
   cellIdx: number;
 }
 export interface TableauCardRef {
-  zone: 'tableau';
+  zone: BoardZone.Tableau;
   pileIdx: number;
   cardIdx: number;
 }
