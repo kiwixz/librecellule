@@ -55,8 +55,9 @@
   }
 </script>
 
-<div bind:this={self} class="touch-none"
-    style:will-change={dragging ? 'translate' : null}
+<div bind:this={self} class="relative touch-none"
+    class:will-change-[translate]={dragging}
+    class:z-1={dragging}
     {oncontextmenu} {onpointerdown}>
   {@render props.children()}
 </div>
