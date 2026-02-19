@@ -28,4 +28,5 @@ export interface TableauCardRef {
   pileIdx: number;
   cardIdx: number;
 }
+export type MovableCardRef = DepotCardRef | TableauCardRef;
 export type CardRef = DepotCardRef | FoundationCardRef | TableauCardRef;

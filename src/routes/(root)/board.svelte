@@ -1,9 +1,11 @@
 <script lang="ts">
+  import type { DepotCardRef, MovableCardRef, TableauCardRef } from './types';
+
   import Card from '$lib/card.svelte';
   import { unreachable } from '$lib/unreachable';
   import Draggable from './draggable.svelte';
   import { Game } from './game.svelte';
-  import { BoardZone, type DepotCardRef, type TableauCardRef } from './types';
+  import { BoardZone } from './types';
 
   type DragDestination = {
     zone: BoardZone.Depots;
@@ -36,14 +38,14 @@
     unreachable();
   }
 
-  function onDragStart(card: DepotCardRef | TableauCardRef) {
+  function onDragStart(card: MovableCardRef) {
     return (ev: PointerEvent) => {
       console.debug('drag start', card, ev);
       return true;
     };
   }
 
-  function onDragMove(card: DepotCardRef | TableauCardRef) {
+  function onDragMove(card: MovableCardRef) {
     return (ev: PointerEvent) => {
       console.debug('drag move', card, ev);
 
@@ -63,7 +65,7 @@
     };
   }
 
-  function onDragEnd(card: DepotCardRef | TableauCardRef) {
+  function onDragEnd(card: MovableCardRef) {
     return (ev: PointerEvent) => {
       console.debug('drag end', card, ev);
 

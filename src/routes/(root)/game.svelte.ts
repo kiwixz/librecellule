@@ -1,6 +1,7 @@
+import type { BoardData, CardData } from './types';
+
 import { Generator } from '$lib/random';
 import { ints } from '$lib/range';
-import type { BoardData, CardData } from './types';
 
 export class Game {
   #seed = $state('');

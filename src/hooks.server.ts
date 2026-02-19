@@ -1,5 +1,7 @@
+import type { Options as MinifierOptions } from 'html-minifier-terser';
+
 import { building } from '$app/environment';
-import { minify, type Options as MinifierOptions } from 'html-minifier-terser';
+import { minify } from 'html-minifier-terser';
 
 const minifierOptions: MinifierOptions = {
   collapseBooleanAttributes: true,
