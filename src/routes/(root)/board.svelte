@@ -66,8 +66,8 @@
   }
 
   function onDragEnd(card: MovableCardRef) {
-    return (ev: PointerEvent) => {
-      console.debug('drag end', card, ev);
+    return (ev: PointerEvent, cancelled: boolean) => {
+      console.debug('drag end', card, ev, cancelled);
 
       highlightedDepotCell = null;
       highlightedTableauColumn = null;

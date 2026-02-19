@@ -5,9 +5,9 @@
   const props: {
     children: Snippet;
     handle?: Snippet;
-    onstart?: (ev: PointerEvent) => boolean;
-    onmove?: (ev: PointerEvent) => void;
-    onend?: (ev: PointerEvent) => void;
+    onstart?: (event: PointerEvent) => boolean;
+    onmove?: (event: PointerEvent) => void;
+    onend?: (event: PointerEvent, cancelled: boolean) => void;
   } = $props();
 
   let self: HTMLElement;
@@ -27,30 +27,30 @@
 
     dragging = true;
     self.setPointerCapture(ev.pointerId);
-
     const startX = ev.x;
     const startY = ev.y;
 
     const controller = new AbortController();
-    const { signal } = controller;
-    const cancel = () => {
-      controller.abort();
+    const listenerOptions = { signal: controller.signal };
 
-      self.style.translate = '';
-      dragging = false;
+    const onend = (cancelled: boolean) => {
+      return (ev: PointerEvent) => {
+        controller.abort();
+
+        self.style.translate = '';
+        dragging = false;
+
+        props.onend?.(ev, cancelled);
+      };
     };
 
     on(self, 'pointermove', (ev) => {
       self.style.translate = `${ev.x - startX}px ${ev.y - startY}px`;
       props.onmove?.(ev);
-    }, { signal });
+    }, listenerOptions);
 
-    on(self, 'pointerup', () => {
-      cancel();
-      props.onend?.(ev);
-    }, { signal });
-
-    on(self, 'pointercancel', cancel, { signal });
+    on(self, 'pointerup', onend(false), listenerOptions);
+    on(self, 'pointercancel', onend(true), listenerOptions);
   }
 </script>
 
