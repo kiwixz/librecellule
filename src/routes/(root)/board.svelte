@@ -83,19 +83,23 @@
         <div data-zone={ref.zone} data-cell-idx={cellIdx}
             class="drag-destination"
             class:highlighted={highlightedDepotCell === cellIdx}>
-          <Draggable
-              onstart={onDragStart(ref)}
-              onmove={onDragMove(ref)}
-              onend={onDragEnd(ref)}>
-            <Card {...card} />
-          </Draggable>
+          {#if card}
+            <Draggable
+                onstart={onDragStart(ref)}
+                onmove={onDragMove(ref)}
+                onend={onDragEnd(ref)}>
+              <Card {...card} />
+            </Draggable>
+          {/if}
         </div>
       {/each}
     </div>
 
     <div class="piles">
       {#each props.game?.board.foundations as card (card)}
-        <Card {...card} />
+        {#if card}
+          <Card {...card} />
+        {/if}
       {/each}
     </div>
   </div>

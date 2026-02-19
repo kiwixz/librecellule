@@ -1,14 +1,15 @@
 import type { BoardData, CardData } from './types';
 
 import { Generator } from '$lib/random';
+import { createTuple, generateTuple } from '$lib/tuple';
 import { ints } from '$lib/range';
 
 export class Game {
   #seed = $state('');
   #board: BoardData = $state({
-    depots: Array(4),
-    foundations: Array(4),
-    tableau: Array(8).fill([]),
+    depots: createTuple(4, null),
+    foundations: createTuple(4, null),
+    tableau: createTuple(8, []),
   });
 
   get seed() {
@@ -31,9 +32,9 @@ export class Game {
     };
 
     this.#board = {
-      depots: ints(4, i => ({ rank: 1 + i, suit: 3 })),
-      foundations: ints(4, i => ({ rank: 0, suit: i })),
-      tableau: ints(8, i => ints(i < 4 ? 7 : 6, popCard)),
+      depots: generateTuple(4, i => ({ rank: 1 + i, suit: 3 })),
+      foundations: generateTuple(4, i => ({ rank: 0, suit: i })),
+      tableau: generateTuple(8, i => ints(i < 4 ? 7 : 6, popCard)),
     };
   }
 }

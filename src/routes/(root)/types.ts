@@ -1,12 +1,14 @@
+import type { Tuple } from '$lib/tuple';
+
 export interface CardData {
   rank: number;
   suit: number;
 }
 
 export interface BoardData {
-  depots: CardData[];
-  foundations: CardData[];
-  tableau: CardData[][];
+  depots: Tuple<CardData | null, 4>;
+  foundations: Tuple<CardData | null, 4>;
+  tableau: Tuple<CardData[], 8>;
 }
 
 export enum BoardZone {
