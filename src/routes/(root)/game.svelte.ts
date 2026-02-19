@@ -1,4 +1,4 @@
-import type { BoardData, CardData, CardRef, MovableCardRef } from './types';
+import type { BoardData, CardData, CardRef, MovableCardRef, MoveDestination } from './types';
 
 import { Generator } from '$lib/random';
 import { createTuple, generateTuple } from '$lib/tuple';
@@ -62,6 +62,16 @@ export class Game {
     switch (ref.zone) {
       case BoardZone.Depots: return true;
       case BoardZone.Tableau: return isTableauSequence(this.#board.tableau[ref.columnIdx].slice(ref.cardIdx));
+    }
+  }
+
+  canMoveTo(card: CardData, destination: MoveDestination) {
+    switch (destination.zone) {
+      case BoardZone.Depots: return this.#board.depots[destination.cellIdx] === null;
+      case BoardZone.Tableau: {
+        const column = this.#board.tableau[destination.columnIdx];
+        return column ? isTableauSequence([column.at(-1)!, card]) : true;
+      }
     }
   }
 }

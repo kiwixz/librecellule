@@ -43,21 +43,29 @@
 
   function onDragMove(card: MovableCardRef) {
     return (ev: PointerEvent) => {
-      console.debug('drag move', card, ev);
+      let destination = findDragDestination(ev.x, ev.y);
+      if (destination && props.game.canMoveTo(draggingCard!, destination)) {
+        switch (destination.zone) {
+          case BoardZone.Depots:
+            if (card.zone !== destination.zone || destination.cellIdx !== card.cellIdx) {
+              highlightedDepotCell = destination.cellIdx;
+              highlightedTableauColumn = null;
+              return;
+            }
+            break;
 
-      let destinationRef = findDragDestination(ev.x, ev.y);
-      if (destinationRef?.zone === BoardZone.Depots && (card.zone !== destinationRef.zone || destinationRef.cellIdx !== card.cellIdx)) {
-        highlightedDepotCell = destinationRef.cellIdx;
-        highlightedTableauColumn = null;
+          case BoardZone.Tableau:
+            if (card.zone !== destination.zone || destination.columnIdx !== card.columnIdx) {
+              highlightedDepotCell = null;
+              highlightedTableauColumn = destination.columnIdx;
+              return;
+            }
+            break;
+        }
       }
-      else if (destinationRef?.zone === BoardZone.Tableau && (card.zone !== destinationRef.zone || destinationRef.columnIdx !== card.columnIdx)) {
-        highlightedDepotCell = null;
-        highlightedTableauColumn = destinationRef.columnIdx;
-      }
-      else {
-        highlightedDepotCell = null;
-        highlightedTableauColumn = null;
-      }
+
+      highlightedDepotCell = null;
+      highlightedTableauColumn = null;
     };
   }
 
