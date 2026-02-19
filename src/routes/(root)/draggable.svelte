@@ -4,6 +4,7 @@
 
   const props: {
     children: Snippet;
+    handle?: Snippet;
     onstart?: (ev: PointerEvent) => boolean;
     onmove?: (ev: PointerEvent) => void;
     onend?: (ev: PointerEvent) => void;
@@ -50,14 +51,22 @@
     }, { signal });
 
     on(self, 'pointercancel', cancel, { signal });
-
-    ev.stopPropagation();
   }
 </script>
 
-<div bind:this={self} class="relative touch-none"
+<div bind:this={self} class="relative"
     class:will-change-[translate]={dragging}
-    class:z-1={dragging}
-    {oncontextmenu} {onpointerdown}>
-  {@render props.children()}
+    class:z-1={dragging}>
+  {#if props.handle}
+    <div class="grid *:row-1 *:col-1">
+      {@render props.children()}
+      <div class="touch-none" {oncontextmenu} {onpointerdown}>
+        {@render props.handle()}
+      </div>
+    </div>
+  {:else}
+    <div class="touch-none" {oncontextmenu} {onpointerdown}>
+      {@render props.children()}
+    </div>
+  {/if}
 </div>

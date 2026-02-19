@@ -115,14 +115,14 @@
               onstart={onDragStart(ref)}
               onmove={onDragMove(ref)}
               onend={onDragEnd(ref)}>
-            <div class="grid *:row-1 *:col-1">
+            {#snippet handle()}
               <Card {...column[cardIdx]} />
-              {#if cardIdx < column.length - 1}
-                <div class="mt-[round(40%,1px)]">
-                  {@render recurse(cardIdx + 1)}
-                </div>
-              {/if}
-            </div>
+            {/snippet}
+            {#if cardIdx < column.length - 1}
+              <div class="mt-[round(40%,1px)]">
+                {@render recurse(cardIdx + 1)}
+              </div>
+            {/if}
           </Draggable>
         </div>
       {/snippet}
