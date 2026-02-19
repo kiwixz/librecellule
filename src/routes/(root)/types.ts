@@ -25,7 +25,7 @@ export interface FoundationCardRef {
 }
 export interface TableauCardRef {
   zone: BoardZone.Tableau;
-  pileIdx: number;
+  columnIdx: number;
   cardIdx: number;
 }
 export type MovableCardRef = DepotCardRef | TableauCardRef;

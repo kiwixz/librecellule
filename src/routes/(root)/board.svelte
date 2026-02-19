@@ -12,13 +12,13 @@
     cellIdx: number;
   } | {
     zone: BoardZone.Tableau;
-    pileIdx: number;
+    columnIdx: number;
   } | null;
 
   const props: { game: Game } = $props();
 
   let highlightedDepotCell: number | null = $state(null);
-  let highlightedTableauPile: number | null = $state(null);
+  let highlightedTableauColumn: number | null = $state(null);
 
   function findDragDestination(x: number, y: number): DragDestination {
     const destinationCandidates = document.elementsFromPoint(x, y);
@@ -32,7 +32,7 @@
       case BoardZone.Depots:
         return { zone, cellIdx: parseInt(destination.dataset.cellIdx!) };
       case BoardZone.Tableau:
-        return { zone, pileIdx: parseInt(destination.dataset.pileIdx!) };
+        return { zone, columnIdx: parseInt(destination.dataset.columnIdx!) };
     }
 
     unreachable();
@@ -52,15 +52,15 @@
       let destinationRef = findDragDestination(ev.x, ev.y);
       if (destinationRef?.zone === BoardZone.Depots && (card.zone !== destinationRef.zone || destinationRef.cellIdx !== card.cellIdx)) {
         highlightedDepotCell = destinationRef.cellIdx;
-        highlightedTableauPile = null;
+        highlightedTableauColumn = null;
       }
-      else if (destinationRef?.zone === BoardZone.Tableau && (card.zone !== destinationRef.zone || destinationRef.pileIdx !== card.pileIdx)) {
+      else if (destinationRef?.zone === BoardZone.Tableau && (card.zone !== destinationRef.zone || destinationRef.columnIdx !== card.columnIdx)) {
         highlightedDepotCell = null;
-        highlightedTableauPile = destinationRef.pileIdx;
+        highlightedTableauColumn = destinationRef.columnIdx;
       }
       else {
         highlightedDepotCell = null;
-        highlightedTableauPile = null;
+        highlightedTableauColumn = null;
       }
     };
   }
@@ -70,7 +70,7 @@
       console.debug('drag end', card, ev);
 
       highlightedDepotCell = null;
-      highlightedTableauPile = null;
+      highlightedTableauColumn = null;
     };
   }
 </script>
@@ -101,19 +101,19 @@
   </div>
 
   <div class="piles">
-    {#each props.game?.board.tableau as pile, pileIdx (pile)}
+    {#each props.game?.board.tableau as column, columnIdx (column)}
       {#snippet recurse(cardIdx = 0)}
-        {@const ref: TableauCardRef = { zone: BoardZone.Tableau, pileIdx, cardIdx }}
-        <div data-zone={ref.zone} data-pile-idx={pileIdx}
+        {@const ref: TableauCardRef = { zone: BoardZone.Tableau, columnIdx, cardIdx }}
+        <div data-zone={ref.zone} data-column-idx={columnIdx}
             class="drag-destination"
-            class:highlighted={highlightedTableauPile === pileIdx}>
+            class:highlighted={highlightedTableauColumn === columnIdx}>
           <Draggable
               onstart={onDragStart(ref)}
               onmove={onDragMove(ref)}
               onend={onDragEnd(ref)}>
             <div class="grid *:row-1 *:col-1">
-              <Card {...pile[cardIdx]} />
-              {#if cardIdx < pile.length - 1}
+              <Card {...column[cardIdx]} />
+              {#if cardIdx < column.length - 1}
                 <div class="mt-[round(40%,1px)]">
                   {@render recurse(cardIdx + 1)}
                 </div>
