@@ -34,7 +34,7 @@ export type MovableCardRef = DepotCardRef | TableauCardRef;
 export type CardRef = DepotCardRef | FoundationCardRef | TableauCardRef;
 
 export type MoveDestination = {
-  zone: BoardZone.Depots;
+  zone: BoardZone.Depots | BoardZone.Foundations;
   cellIdx: number;
 } | {
   zone: BoardZone.Tableau;

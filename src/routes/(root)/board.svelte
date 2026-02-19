@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { CardData, DepotCardRef, MovableCardRef, MoveDestination, TableauCardRef } from './types';
+  import type { CardData, DepotCardRef, FoundationCardRef, MovableCardRef, MoveDestination, TableauCardRef } from './types';
 
   import Card from '$lib/card.svelte';
   import { unreachable } from '$lib/unreachable';
@@ -10,8 +10,7 @@
   const props: { game: Game } = $props();
 
   let draggingCard: CardData | null;
-  let highlightedDepotCell: number | null = $state(null);
-  let highlightedTableauColumn: number | null = $state(null);
+  let highlightedDestination: MoveDestination | null = $state(null);
 
   function findDragDestination(x: number, y: number): MoveDestination | null {
     const destinationCandidates = document.elementsFromPoint(x, y);
@@ -23,11 +22,11 @@
     const zone = parseInt(destination.dataset.zone!);
     switch (zone) {
       case BoardZone.Depots:
+      case BoardZone.Foundations:
         return { zone, cellIdx: parseInt(destination.dataset.cellIdx!) };
       case BoardZone.Tableau:
         return { zone, columnIdx: parseInt(destination.dataset.columnIdx!) };
     }
-
     unreachable();
   }
 
@@ -48,24 +47,21 @@
         switch (destination.zone) {
           case BoardZone.Depots:
             if (card.zone !== destination.zone || destination.cellIdx !== card.cellIdx) {
-              highlightedDepotCell = destination.cellIdx;
-              highlightedTableauColumn = null;
+              highlightedDestination = destination;
               return;
             }
             break;
 
           case BoardZone.Tableau:
             if (card.zone !== destination.zone || destination.columnIdx !== card.columnIdx) {
-              highlightedDepotCell = null;
-              highlightedTableauColumn = destination.columnIdx;
+              highlightedDestination = destination;
               return;
             }
             break;
         }
       }
 
-      highlightedDepotCell = null;
-      highlightedTableauColumn = null;
+      highlightedDestination = null;
     };
   }
 
@@ -74,8 +70,7 @@
       console.debug('drag end', card, ev, cancelled);
 
       draggingCard = null;
-      highlightedDepotCell = null;
-      highlightedTableauColumn = null;
+      highlightedDestination = null;
     };
   }
 </script>
@@ -87,7 +82,7 @@
         {@const ref: DepotCardRef = { zone: BoardZone.Depots, cellIdx }}
         <div data-zone={ref.zone} data-cell-idx={cellIdx}
             class="drag-destination"
-            class:highlighted={highlightedDepotCell === cellIdx}>
+            class:highlighted={highlightedDestination?.zone === ref.zone && highlightedDestination.cellIdx === cellIdx}>
           {#if card}
             <Draggable
                 onstart={onDragStart(ref)}
@@ -101,10 +96,15 @@
     </div>
 
     <div class="piles">
-      {#each props.game?.board.foundations as card (card)}
-        {#if card}
-          <Card {...card} />
-        {/if}
+      {#each props.game?.board.foundations as card, cellIdx (card)}
+      {@const ref: FoundationCardRef = { zone: BoardZone.Foundations, cellIdx }}
+        <div data-zone={ref.zone} data-cell-idx={cellIdx}
+            class="drag-destination"
+            class:highlighted={highlightedDestination?.zone === ref.zone && highlightedDestination.cellIdx === cellIdx}>
+          {#if card}
+            <Card {...card} />
+          {/if}
+        </div>
       {/each}
     </div>
   </div>
@@ -115,7 +115,7 @@
         {@const ref: TableauCardRef = { zone: BoardZone.Tableau, columnIdx, cardIdx }}
         <div data-zone={ref.zone} data-column-idx={columnIdx}
             class="drag-destination"
-            class:highlighted={highlightedTableauColumn === columnIdx}>
+            class:highlighted={highlightedDestination?.zone === ref.zone && highlightedDestination.columnIdx === columnIdx}>
           <Draggable
               onstart={onDragStart(ref)}
               onmove={onDragMove(ref)}

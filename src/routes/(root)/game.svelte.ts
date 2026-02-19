@@ -67,7 +67,13 @@ export class Game {
 
   canMoveTo(card: CardData, destination: MoveDestination) {
     switch (destination.zone) {
-      case BoardZone.Depots: return this.#board.depots[destination.cellIdx] === null;
+      case BoardZone.Depots:
+        return this.card(destination) === null;
+      case BoardZone.Foundations: {
+        const destinationCard = this.card(destination);
+        return (card.rank === 0 && destinationCard === null)
+          || (card.suit === destinationCard?.suit && card.rank === destinationCard.rank + 1);
+      }
       case BoardZone.Tableau: {
         const column = this.#board.tableau[destination.columnIdx];
         return column ? isTableauSequence([column.at(-1)!, card]) : true;
