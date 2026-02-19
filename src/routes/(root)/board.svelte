@@ -30,44 +30,31 @@
     unreachable();
   }
 
-  function onDragStart(card: MovableCardRef) {
+  function onDragStart(ref: MovableCardRef) {
     return () => {
-      if (draggingCard || !props.game.canMove(card))
+      if (draggingCard || !props.game.canMove(ref))
         return false;
 
-      draggingCard = props.game.card(card);
+      draggingCard = props.game.card(ref);
       return true;
     };
   }
 
-  function onDragMove(card: MovableCardRef) {
+  function onDragMove(ref: MovableCardRef) {
     return (ev: PointerEvent) => {
       let destination = findDragDestination(ev.x, ev.y);
-      if (destination && props.game.canMoveTo(draggingCard!, destination)) {
-        switch (destination.zone) {
-          case BoardZone.Depots:
-            if (card.zone !== destination.zone || destination.cellIdx !== card.cellIdx) {
-              highlightedDestination = destination;
-              return;
-            }
-            break;
-
-          case BoardZone.Tableau:
-            if (card.zone !== destination.zone || destination.columnIdx !== card.columnIdx) {
-              highlightedDestination = destination;
-              return;
-            }
-            break;
-        }
-      }
-
-      highlightedDestination = null;
+      highlightedDestination = destination
+        && props.game.canMoveTo(draggingCard!, destination)
+        && (destination.zone !== BoardZone.Depots || ref.zone !== destination.zone || destination.cellIdx !== ref.cellIdx)
+        && (destination.zone !== BoardZone.Tableau || ref.zone !== destination.zone || destination.columnIdx !== ref.columnIdx)
+        ? destination
+        : null;
     };
   }
 
-  function onDragEnd(card: MovableCardRef) {
+  function onDragEnd(ref: MovableCardRef) {
     return (ev: PointerEvent, cancelled: boolean) => {
-      console.debug('drag end', card, ev, cancelled);
+      console.debug('drag end', ref, ev, cancelled);
 
       draggingCard = null;
       highlightedDestination = null;
