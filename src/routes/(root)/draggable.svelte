@@ -22,7 +22,7 @@
     if (ev.button !== 0)
       return;
 
-    if (!props.onstart?.(ev))
+    if (props.onstart?.(ev) === false)
       return;
 
     dragging = true;
