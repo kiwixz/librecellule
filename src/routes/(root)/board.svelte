@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { DepotCardRef, MovableCardRef, MoveDestination, TableauCardRef } from './types';
+  import type { CardData, DepotCardRef, MovableCardRef, MoveDestination, TableauCardRef } from './types';
 
   import Card from '$lib/card.svelte';
   import { unreachable } from '$lib/unreachable';
@@ -9,6 +9,7 @@
 
   const props: { game: Game } = $props();
 
+  let draggingCard: CardData | null;
   let highlightedDepotCell: number | null = $state(null);
   let highlightedTableauColumn: number | null = $state(null);
 
@@ -31,7 +32,13 @@
   }
 
   function onDragStart(card: MovableCardRef) {
-    return () => props.game.canMove(card);
+    return () => {
+      if (draggingCard || !props.game.canMove(card))
+        return false;
+
+      draggingCard = props.game.card(card);
+      return true;
+    };
   }
 
   function onDragMove(card: MovableCardRef) {
@@ -58,6 +65,7 @@
     return (ev: PointerEvent, cancelled: boolean) => {
       console.debug('drag end', card, ev, cancelled);
 
+      draggingCard = null;
       highlightedDepotCell = null;
       highlightedTableauColumn = null;
     };

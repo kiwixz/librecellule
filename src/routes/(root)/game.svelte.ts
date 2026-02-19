@@ -1,4 +1,4 @@
-import type { BoardData, CardData, MovableCardRef } from './types';
+import type { BoardData, CardData, CardRef, MovableCardRef } from './types';
 
 import { Generator } from '$lib/random';
 import { createTuple, generateTuple } from '$lib/tuple';
@@ -30,6 +30,14 @@ export class Game {
 
   get board(): Readonly<BoardData> {
     return this.#board;
+  }
+
+  card(ref: CardRef) {
+    switch (ref.zone) {
+      case BoardZone.Depots: return this.#board.depots[ref.cellIdx];
+      case BoardZone.Foundations: return this.#board.foundations[ref.cellIdx];
+      case BoardZone.Tableau: return this.#board.tableau[ref.columnIdx][ref.cardIdx];
+    }
   }
 
   reset(seed?: string) {
