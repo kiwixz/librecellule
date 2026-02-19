@@ -18,8 +18,8 @@ export class Game {
     return this.#board;
   }
 
-  reset() {
-    const generator = new Generator();
+  reset(seed?: string) {
+    const generator = new Generator(seed);
     this.#seed = generator.state;
 
     const deck = ints(4 * 13, i => ({ rank: i % 13, suit: Math.floor(i / 13) }));
