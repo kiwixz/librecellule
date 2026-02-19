@@ -32,3 +32,11 @@ export interface TableauCardRef {
 }
 export type MovableCardRef = DepotCardRef | TableauCardRef;
 export type CardRef = DepotCardRef | FoundationCardRef | TableauCardRef;
+
+export type MoveDestination = {
+  zone: BoardZone.Depots;
+  cellIdx: number;
+} | {
+  zone: BoardZone.Tableau;
+  columnIdx: number;
+};

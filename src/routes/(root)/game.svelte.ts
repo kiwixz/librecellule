@@ -1,8 +1,20 @@
-import type { BoardData, CardData } from './types';
+import type { BoardData, CardData, MovableCardRef } from './types';
 
 import { Generator } from '$lib/random';
 import { createTuple, generateTuple } from '$lib/tuple';
 import { ints } from '$lib/range';
+import { BoardZone } from './types';
+
+function isTableauSequence(sequence: CardData[]) {
+  const color = (card: CardData) => card.suit === 1 || card.suit === 2;
+
+  for (let i = 1; i < sequence.length; ++i) {
+    if (color(sequence[i]) === color(sequence[i - 1]) || sequence[i].rank !== sequence[i - 1].rank - 1)
+      return false;
+  }
+
+  return true;
+}
 
 export class Game {
   #seed = $state('');
@@ -36,5 +48,12 @@ export class Game {
       foundations: generateTuple(4, i => ({ rank: 0, suit: i })),
       tableau: generateTuple(8, i => ints(i < 4 ? 7 : 6, popCard)),
     };
+  }
+
+  canMove(ref: MovableCardRef) {
+    switch (ref.zone) {
+      case BoardZone.Depots: return true;
+      case BoardZone.Tableau: return isTableauSequence(this.#board.tableau[ref.columnIdx].slice(ref.cardIdx));
+    }
   }
 }
