@@ -12,6 +12,7 @@
 
   let self: HTMLElement;
   let dragging = $state(false);
+  let pointer: number;
 
   function oncontextmenu(ev: Event) {
     if (dragging)
@@ -19,14 +20,15 @@
   }
 
   function onpointerdown(ev: PointerEvent) {
-    if (ev.button !== 0)
+    if (ev.button !== 0 || dragging)
       return;
 
     if (props.onstart?.(ev) === false)
       return;
 
     dragging = true;
-    self.setPointerCapture(ev.pointerId);
+    pointer = ev.pointerId;
+    self.setPointerCapture(pointer);
     const startX = ev.x;
     const startY = ev.y;
 
@@ -35,6 +37,9 @@
 
     const onend = (cancelled: boolean) => {
       return (ev: PointerEvent) => {
+        if (ev.pointerId !== pointer)
+          return;
+
         controller.abort();
 
         self.style.translate = '';
@@ -45,6 +50,9 @@
     };
 
     on(self, 'pointermove', (ev) => {
+      if (ev.pointerId !== pointer)
+        return;
+
       self.style.translate = `${ev.x - startX}px ${ev.y - startY}px`;
       props.onmove?.(ev);
     }, listenerOptions);
