@@ -54,10 +54,17 @@
 
   function onDragEnd(ref: MovableCardRef) {
     return (ev: PointerEvent, cancelled: boolean) => {
-      console.debug('drag end', ref, ev, cancelled);
-
-      dragging = false;
       highlightedDestination = null;
+      dragging = false;
+
+      if (cancelled)
+        return;
+
+      let destination = findDragDestination(ev.x, ev.y);
+      if (!destination || !props.game.canMoveTo(ref, destination))
+        return;
+
+      props.game.move(ref, destination);
     };
   }
 </script>

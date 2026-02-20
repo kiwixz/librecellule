@@ -86,4 +86,37 @@ export class Game {
       }
     }
   }
+
+  move(ref: MovableCardRef, destination: MoveDestination) {
+    const card = this.card(ref)!;
+
+    switch (destination.zone) {
+      case BoardZone.Depots:
+        this.#board.depots[destination.cellIdx] = card;
+        break;
+      case BoardZone.Foundations:
+        this.#board.foundations[destination.cellIdx] = card;
+        break;
+      case BoardZone.Tableau: {
+        const column = this.#board.tableau[destination.columnIdx];
+        if (ref.zone === BoardZone.Tableau) {
+          column.push(...this.#board.tableau[ref.columnIdx].slice(ref.cardIdx));
+        }
+        else {
+          column.push(card);
+        }
+        break;
+      }
+    }
+
+    switch (ref.zone) {
+      case BoardZone.Depots:
+        this.#board.depots[ref.cellIdx] = null;
+        break;
+      case BoardZone.Tableau:{
+        this.#board.tableau[ref.columnIdx].length = ref.cardIdx;
+        break;
+      }
+    }
+  }
 }
