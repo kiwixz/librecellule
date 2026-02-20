@@ -1,8 +1,8 @@
 import type { Tuple } from '$lib/tuple';
 
 export interface CardData {
-  rank: number;
   suit: number;
+  rank: number;
 }
 
 export interface BoardData {

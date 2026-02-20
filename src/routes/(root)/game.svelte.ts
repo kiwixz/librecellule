@@ -52,8 +52,8 @@ export class Game {
     };
 
     this.#board = {
-      depots: generateTuple(4, i => ({ rank: 1 + i, suit: 3 })),
-      foundations: generateTuple(4, i => ({ rank: 0, suit: i })),
+      depots: createTuple(4, null),
+      foundations: createTuple(4, null),
       tableau: generateTuple(8, i => ints(i < 4 ? 7 : 6, popCard)),
     };
   }

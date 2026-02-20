@@ -1,7 +1,8 @@
 <script lang="ts">
   import type { DepotCardRef, FoundationCardRef, MovableCardRef, MoveDestination, TableauCardRef } from './types';
 
-  import Card from '$lib/card.svelte';
+  import Card from './card.svelte';
+  import CardSpace from './card_space.svelte';
   import { unreachable } from '$lib/unreachable';
   import Draggable from './draggable.svelte';
   import { Game } from './game.svelte';
@@ -77,14 +78,16 @@
         <div data-zone={ref.zone} data-cell-idx={cellIdx}
             class="drag-destination"
             class:highlighted={highlightedDestination?.zone === ref.zone && highlightedDestination.cellIdx === cellIdx}>
-          {#if card}
-            <Draggable
-                onstart={onDragStart(ref)}
-                onmove={onDragMove(ref)}
-                onend={onDragEnd(ref)}>
-              <Card {...card} />
-            </Draggable>
-          {/if}
+          <CardSpace>
+            {#if card}
+              <Draggable
+                  onstart={onDragStart(ref)}
+                  onmove={onDragMove(ref)}
+                  onend={onDragEnd(ref)}>
+                <Card data={card} />
+              </Draggable>
+            {/if}
+          </CardSpace>
         </div>
       {/each}
     </div>
@@ -95,9 +98,11 @@
         <div data-zone={ref.zone} data-cell-idx={cellIdx}
             class="drag-destination"
             class:highlighted={highlightedDestination?.zone === ref.zone && highlightedDestination.cellIdx === cellIdx}>
-          {#if card}
-            <Card {...card} />
-          {/if}
+          <CardSpace>
+            {#if card}
+              <Card data={card} />
+            {/if}
+          </CardSpace>
         </div>
       {/each}
     </div>
@@ -105,28 +110,36 @@
 
   <div class="piles">
     {#each props.game?.board.tableau as column, columnIdx (columnIdx)}
-      {#snippet recurse(cardIdx = 0)}
-        {@const ref: TableauCardRef = { zone: BoardZone.Tableau, columnIdx, cardIdx }}
-        <div data-zone={ref.zone} data-column-idx={columnIdx}
-            class="drag-destination"
-            class:highlighted={highlightedDestination?.zone === ref.zone && highlightedDestination.columnIdx === columnIdx}>
-          <Draggable
-              onstart={onDragStart(ref)}
-              onmove={onDragMove(ref)}
-              onend={onDragEnd(ref)}>
-            {#snippet handle()}
-              <Card {...column[cardIdx]} />
-            {/snippet}
-            {#if cardIdx < column.length - 1}
-              <div class="mt-[round(40%,1px)]">
-                {@render recurse(cardIdx + 1)}
+      <div data-zone={BoardZone.Tableau} data-column-idx={columnIdx}
+          class="drag-destination"
+          class:highlighted={highlightedDestination?.zone === BoardZone.Tableau && highlightedDestination.columnIdx === columnIdx}>
+        <CardSpace>
+          {#if column.length > 0}
+            {#snippet recurse(cardIdx = 0)}
+              {@const ref: TableauCardRef = { zone: BoardZone.Tableau, columnIdx, cardIdx }}
+              <div data-zone={ref.zone} data-column-idx={columnIdx}
+                  class="drag-destination"
+                  class:highlighted={highlightedDestination?.zone === ref.zone && highlightedDestination.columnIdx === columnIdx}>
+                <Draggable
+                    onstart={onDragStart(ref)}
+                    onmove={onDragMove(ref)}
+                    onend={onDragEnd(ref)}>
+                  {#snippet handle()}
+                    <Card data={column[cardIdx]} />
+                  {/snippet}
+                  {#if cardIdx < column.length - 1}
+                    <div class="mt-[round(40%,1px)]">
+                      {@render recurse(cardIdx + 1)}
+                    </div>
+                  {/if}
+                </Draggable>
               </div>
-            {/if}
-          </Draggable>
-        </div>
-      {/snippet}
+            {/snippet}
 
-      {@render recurse()}
+            {@render recurse()}
+          {/if}
+        </CardSpace>
+      </div>
     {/each}
   </div>
 </div>
