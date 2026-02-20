@@ -72,7 +72,7 @@
 <div>
   <div class="flex">
     <div class="piles">
-      {#each props.game?.board.depots as card, cellIdx (card)}
+      {#each props.game?.board.depots as card, cellIdx (cellIdx)}
         {@const ref: DepotCardRef = { zone: BoardZone.Depots, cellIdx }}
         <div data-zone={ref.zone} data-cell-idx={cellIdx}
             class="drag-destination"
@@ -90,7 +90,7 @@
     </div>
 
     <div class="piles">
-      {#each props.game?.board.foundations as card, cellIdx (card)}
+      {#each props.game?.board.foundations as card, cellIdx (cellIdx)}
       {@const ref: FoundationCardRef = { zone: BoardZone.Foundations, cellIdx }}
         <div data-zone={ref.zone} data-cell-idx={cellIdx}
             class="drag-destination"
@@ -104,7 +104,7 @@
   </div>
 
   <div class="piles">
-    {#each props.game?.board.tableau as column, columnIdx (column)}
+    {#each props.game?.board.tableau as column, columnIdx (columnIdx)}
       {#snippet recurse(cardIdx = 0)}
         {@const ref: TableauCardRef = { zone: BoardZone.Tableau, columnIdx, cardIdx }}
         <div data-zone={ref.zone} data-column-idx={columnIdx}
