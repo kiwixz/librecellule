@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { CardData, DepotCardRef, FoundationCardRef, MovableCardRef, MoveDestination, TableauCardRef } from './types';
+  import type { DepotCardRef, FoundationCardRef, MovableCardRef, MoveDestination, TableauCardRef } from './types';
 
   import Card from '$lib/card.svelte';
   import { unreachable } from '$lib/unreachable';
@@ -9,7 +9,7 @@
 
   const props: { game: Game } = $props();
 
-  let draggingCard: CardData | null;
+  let dragging = false;
   let highlightedDestination: MoveDestination | null = $state(null);
 
   function findDragDestination(x: number, y: number): MoveDestination | null {
@@ -32,10 +32,10 @@
 
   function onDragStart(ref: MovableCardRef) {
     return () => {
-      if (draggingCard || !props.game.canMove(ref))
+      if (dragging || !props.game.canMove(ref))
         return false;
 
-      draggingCard = props.game.card(ref);
+      dragging = true;
       return true;
     };
   }
@@ -44,7 +44,7 @@
     return (ev: PointerEvent) => {
       let destination = findDragDestination(ev.x, ev.y);
       highlightedDestination = destination
-        && props.game.canMoveTo(draggingCard!, destination)
+        && props.game.canMoveTo(ref, destination)
         && (destination.zone !== BoardZone.Depots || ref.zone !== destination.zone || destination.cellIdx !== ref.cellIdx)
         && (destination.zone !== BoardZone.Tableau || ref.zone !== destination.zone || destination.columnIdx !== ref.columnIdx)
         ? destination
@@ -56,7 +56,7 @@
     return (ev: PointerEvent, cancelled: boolean) => {
       console.debug('drag end', ref, ev, cancelled);
 
-      draggingCard = null;
+      dragging = false;
       highlightedDestination = null;
     };
   }

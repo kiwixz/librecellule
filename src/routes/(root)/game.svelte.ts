@@ -65,18 +65,24 @@ export class Game {
     }
   }
 
-  canMoveTo(card: CardData, destination: MoveDestination) {
+  canMoveTo(ref: MovableCardRef, destination: MoveDestination) {
+    if (destination.zone === BoardZone.Tableau) {
+      const column = this.#board.tableau[destination.columnIdx];
+      return column ? isTableauSequence([column.at(-1)!, this.card(ref)!]) : true;
+    }
+
+    if (ref.zone === BoardZone.Tableau && ref.cardIdx < this.#board.tableau[ref.columnIdx].length - 1)
+      return false;
+
+    const destinationCard = this.card(destination);
+
     switch (destination.zone) {
       case BoardZone.Depots:
-        return this.card(destination) === null;
+        return destinationCard === null;
       case BoardZone.Foundations: {
-        const destinationCard = this.card(destination);
+        const card = this.card(ref)!;
         return (card.rank === 0 && destinationCard === null)
           || (card.suit === destinationCard?.suit && card.rank === destinationCard.rank + 1);
-      }
-      case BoardZone.Tableau: {
-        const column = this.#board.tableau[destination.columnIdx];
-        return column ? isTableauSequence([column.at(-1)!, card]) : true;
       }
     }
   }
