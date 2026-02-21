@@ -1,7 +1,14 @@
 {
   "name": "LibreCellule",
   "icons": [
-    { "src": "/favicon.svg" }
+    {
+      "src": "favicon.svg"
+    },
+    {
+      "src": "appicon.png",
+      "sizes": "1024x1024",
+      "purpose": "maskable"
+    }
   ],
 
   "start_url": "/",
