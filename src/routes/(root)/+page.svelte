@@ -1,12 +1,11 @@
 <script lang="ts">
   import { browser } from '$app/environment';
   import Board from './board.svelte';
-  import { Game } from './game.svelte';
+  import Game from './game.svelte';
 
-  if (browser) {
-    var game = new Game();
+  const game = new Game();
+  if (browser)
     game.reset();
-  }
 </script>
 
 <div class="relative min-h-dvh">

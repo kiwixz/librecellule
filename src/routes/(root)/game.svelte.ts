@@ -16,7 +16,7 @@ function isTableauSequence(sequence: CardData[]) {
   return true;
 }
 
-export class Game {
+export default class Game {
   #seed = $state('');
   #board: BoardData = $state({
     depots: createTuple(4, null),

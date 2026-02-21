@@ -1,11 +1,11 @@
 <script lang="ts">
   import type { DepotCardRef, FoundationCardRef, MovableCardRef, MoveDestination, TableauCardRef } from './types';
 
+  import unreachable from '$lib/unreachable';
   import Card from './card.svelte';
   import CardSpace from './card_space.svelte';
-  import { unreachable } from '$lib/unreachable';
   import Draggable from './draggable.svelte';
-  import { Game } from './game.svelte';
+  import Game from './game.svelte';
   import { BoardZone } from './types';
 
   const props: { game: Game } = $props();
@@ -73,7 +73,7 @@
 <div>
   <div class="flex">
     <div class="piles">
-      {#each props.game?.board.depots as card, cellIdx (cellIdx)}
+      {#each props.game.board.depots as card, cellIdx (cellIdx)}
         {@const ref: DepotCardRef = { zone: BoardZone.Depots, cellIdx }}
         <div data-zone={ref.zone} data-cell-idx={cellIdx}
             class="drag-destination"
@@ -93,7 +93,7 @@
     </div>
 
     <div class="piles">
-      {#each props.game?.board.foundations as card, cellIdx (cellIdx)}
+      {#each props.game.board.foundations as card, cellIdx (cellIdx)}
       {@const ref: FoundationCardRef = { zone: BoardZone.Foundations, cellIdx }}
         <div data-zone={ref.zone} data-cell-idx={cellIdx}
             class="drag-destination"
@@ -109,7 +109,7 @@
   </div>
 
   <div class="piles">
-    {#each props.game?.board.tableau as column, columnIdx (columnIdx)}
+    {#each props.game.board.tableau as column, columnIdx (columnIdx)}
       <div data-zone={BoardZone.Tableau} data-column-idx={columnIdx}
           class="drag-destination"
           class:highlighted={highlightedDestination?.zone === BoardZone.Tableau && highlightedDestination.columnIdx === columnIdx}>
