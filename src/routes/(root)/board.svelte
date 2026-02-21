@@ -31,6 +31,14 @@
     unreachable();
   }
 
+  function onDoubleClick(ref: TableauCardRef) {
+    return (ev: MouseEvent) => {
+      ev.stopPropagation();
+
+      props.game.autoMove(ref);
+    };
+  }
+
   function onDragStart(ref: MovableCardRef) {
     return () => {
       if (dragging || !props.game.canMove(ref))
@@ -119,7 +127,8 @@
               {@const ref: TableauCardRef = { zone: BoardZone.Tableau, columnIdx, cardIdx }}
               <div data-zone={ref.zone} data-column-idx={columnIdx}
                   class="drag-destination"
-                  class:highlighted={highlightedDestination?.zone === ref.zone && highlightedDestination.columnIdx === columnIdx}>
+                  class:highlighted={highlightedDestination?.zone === ref.zone && highlightedDestination.columnIdx === columnIdx}
+                  ondblclick={onDoubleClick(ref)}>
                 <Draggable
                     onstart={onDragStart(ref)}
                     onmove={onDragMove(ref)}

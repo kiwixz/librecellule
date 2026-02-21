@@ -1,4 +1,4 @@
-import type { BoardData, CardData, CardRef, MovableCardRef, MoveDestination } from './types';
+import type { BoardData, CardData, CardRef, MovableCardRef, MoveDestination, TableauCardRef } from './types';
 
 import { Generator } from '$lib/random';
 import { createTuple, generateTuple } from '$lib/tuple';
@@ -118,5 +118,19 @@ export default class Game {
         break;
       }
     }
+  }
+
+  autoMove(ref: TableauCardRef) {
+    for (const zone of [BoardZone.Foundations, BoardZone.Depots]) {
+      for (let i = 0; i < 4; ++i) {
+        const destination = { zone, cellIdx: i } as MoveDestination;
+        if (this.canMoveTo(ref, destination)) {
+          this.move(ref, destination);
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 }
