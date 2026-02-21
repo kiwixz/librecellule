@@ -68,7 +68,7 @@ export class Game {
   canMoveTo(ref: MovableCardRef, destination: MoveDestination) {
     if (destination.zone === BoardZone.Tableau) {
       const column = this.#board.tableau[destination.columnIdx];
-      return column ? isTableauSequence([column.at(-1)!, this.card(ref)!]) : true;
+      return column.length > 0 ? isTableauSequence([column.at(-1)!, this.card(ref)!]) : true;
     }
 
     if (ref.zone === BoardZone.Tableau && ref.cardIdx < this.#board.tableau[ref.columnIdx].length - 1)
