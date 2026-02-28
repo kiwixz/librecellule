@@ -1,8 +1,8 @@
 import type { BoardData, CardData, CardRef, MovableCardRef, MoveDestination, TableauCardRef } from './types';
 
 import { Generator } from '$lib/random';
-import { createTuple, generateTuple } from '$lib/tuple';
 import { ints } from '$lib/range';
+import { createTuple, generateTuple } from '$lib/tuple';
 import { BoardZone } from './types';
 
 function isTableauSequence(sequence: CardData[]) {

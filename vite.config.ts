@@ -1,8 +1,9 @@
+import type { Plugin, ResolvedConfig, UserConfig } from 'vite';
+
 import fs from 'node:fs/promises';
 import { sveltekit } from '@sveltejs/kit/vite';
 import tailwindcss from '@tailwindcss/vite';
 import JSON5 from 'json5';
-import type { Plugin, ResolvedConfig } from 'vite';
 
 function jsonMinifier(): Plugin {
   let config: ResolvedConfig;
@@ -40,4 +41,4 @@ export default {
 
     jsonMinifier(),
   ],
-};
+} satisfies UserConfig;
