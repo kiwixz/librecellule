@@ -119,15 +119,15 @@
   <div class="piles">
     {#each props.game.board.tableau as column, columnIdx (columnIdx)}
       <div data-zone={BoardZone.Tableau} data-column-idx={columnIdx}
-          class="drag-destination"
-          class:highlighted={highlightedDestination?.zone === BoardZone.Tableau && highlightedDestination.columnIdx === columnIdx}>
+          class:drag-destination={column.length === 0}
+          class:highlighted={column.length === 0 && highlightedDestination?.zone === BoardZone.Tableau && highlightedDestination.columnIdx === columnIdx}>
         <CardSpace>
           {#if column.length > 0}
             {#snippet recurse(cardIdx = 0)}
               {@const ref: TableauCardRef = { zone: BoardZone.Tableau, columnIdx, cardIdx }}
               <div data-zone={ref.zone} data-column-idx={columnIdx}
-                  class="drag-destination"
-                  class:highlighted={highlightedDestination?.zone === ref.zone && highlightedDestination.columnIdx === columnIdx}
+                  class:drag-destination={cardIdx === column.length - 1}
+                  class:highlighted={cardIdx === column.length - 1 && highlightedDestination?.zone === ref.zone && highlightedDestination.columnIdx === columnIdx}
                   ondblclick={onDoubleClick(ref)}>
                 <Draggable
                     onstart={onDragStart(ref)}
@@ -157,6 +157,7 @@
 .piles {
   display: flex;
   padding: 2%;
+  align-items: start;
   gap: 1%;
 }
 
@@ -166,11 +167,7 @@
   }
 
   &.highlighted {
-    &, .drag-destination {
-      &:not(:has(.drag-destination)) {
-        filter: brightness(60%);
-      }
-    }
+    filter: brightness(60%);
   }
 }
 </style>
