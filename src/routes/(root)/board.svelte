@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { DepotCardRef, FoundationCardRef, MovableCardRef, MoveDestination, TableauCardRef } from './types';
 
+  import { calcCenter } from '$lib/geometry';
   import unreachable from '$lib/unreachable';
   import Card from './card.svelte';
   import CardSpace from './card_space.svelte';
@@ -13,13 +14,7 @@
   let dragging = false;
   let highlightedDestination: MoveDestination | null = $state(null);
 
-  function findDragDestination(x: number, y: number): MoveDestination | null {
-    const destinationCandidates = document.elementsFromPoint(x, y);
-
-    const destination = destinationCandidates.find(el => el.classList.contains('drag-destination')) as HTMLElement | undefined;
-    if (!destination)
-      return null;
-
+  function parseDragDestination(destination: HTMLElement) {
     const zone = parseInt(destination.dataset.zone!);
     switch (zone) {
       case BoardZone.Depots:
@@ -29,6 +24,37 @@
         return { zone, columnIdx: parseInt(destination.dataset.columnIdx!) };
     }
     unreachable();
+  }
+
+  function findDragDestination(ref: MovableCardRef, ev: PointerEvent): MoveDestination | undefined {
+    const bounds = (ev.target as Element).getBoundingClientRect();
+    const center = calcCenter(bounds);
+
+    let destination;
+    let distanceSqr = Infinity;
+    for (let corner = 0; corner < 4; ++corner) {
+      const elements = document.elementsFromPoint(
+        corner % 2 === 0 ? bounds.left : bounds.right,
+        corner < 2 ? bounds.top : bounds.bottom);
+
+      const destinationElement = elements.find(el => el.classList.contains('drag-destination')) as HTMLElement | undefined;
+      if (!destinationElement)
+        continue;
+
+      const newDestination = parseDragDestination(destinationElement);
+      if (!props.game.canMoveTo(ref, newDestination))
+        continue;
+
+      const destBounds = destinationElement.getBoundingClientRect();
+      const destCenter = calcCenter(destBounds);
+      const newDistanceSqr = (destCenter.x - center.x) ** 2 + (destCenter.y - center.y) ** 2;
+      if (newDistanceSqr < distanceSqr) {
+        destination = newDestination;
+        distanceSqr = newDistanceSqr;
+      }
+    }
+
+    return destination;
   }
 
   function onDoubleClick(ref: TableauCardRef) {
@@ -51,9 +77,8 @@
 
   function onDragMove(ref: MovableCardRef) {
     return (ev: PointerEvent) => {
-      let destination = findDragDestination(ev.x, ev.y);
+      let destination = findDragDestination(ref, ev);
       highlightedDestination = destination
-        && props.game.canMoveTo(ref, destination)
         && (destination.zone !== BoardZone.Depots || ref.zone !== destination.zone || destination.cellIdx !== ref.cellIdx)
         && (destination.zone !== BoardZone.Tableau || ref.zone !== destination.zone || destination.columnIdx !== ref.columnIdx)
         ? destination
@@ -69,8 +94,8 @@
       if (cancelled)
         return;
 
-      let destination = findDragDestination(ev.x, ev.y);
-      if (!destination || !props.game.canMoveTo(ref, destination))
+      let destination = findDragDestination(ref, ev);
+      if (!destination)
         return;
 
       props.game.move(ref, destination);

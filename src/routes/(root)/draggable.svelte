@@ -42,10 +42,10 @@
 
         controller.abort();
 
+        props.onend?.(ev, cancelled);
+
         self.style.translate = '';
         dragging = false;
-
-        props.onend?.(ev, cancelled);
       };
     };
 
