@@ -1,3 +1,4 @@
+import type { DeepReadonly } from '$lib/types';
 import type { BoardData, CardData, CardRef, MovableCardRef, MoveDestination, TableauCardRef } from './types';
 
 import { Generator } from '$lib/random';
@@ -28,7 +29,7 @@ export default class Game {
     return this.#seed;
   }
 
-  get board(): Readonly<BoardData> {
+  get board(): DeepReadonly<BoardData> {
     return this.#board;
   }
 
