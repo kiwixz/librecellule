@@ -6,7 +6,18 @@
   const game = new Game();
   if (browser)
     game.reset();
+
+  function onkeydown(ev: KeyboardEvent): void {
+    if ((ev.ctrlKey || ev.metaKey) && ev.key === 'z') {
+      game.undo();
+    }
+    else if ((ev.ctrlKey || ev.metaKey) && (ev.key === 'y' || ev.key === 'Z')) {
+      game.redo();
+    }
+  }
 </script>
+
+<svelte:window {onkeydown} />
 
 <div class="relative min-h-dvh">
   <main class="max-w-[120lvmin] mx-auto">

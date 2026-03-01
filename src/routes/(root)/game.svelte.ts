@@ -17,33 +17,81 @@ function isTableauSequence(sequence: CardData[]): boolean {
   return true;
 }
 
-export default class Game {
-  #seed = $state('');
-  #board: BoardData = $state({
-    depots: createTuple(4, null),
-    foundations: createTuple(4, null),
-    tableau: createTuple(8, []),
+interface StateData {
+  seed: string;
+  board: BoardData;
+};
+
+class GameState {
+  #data: StateData = $state({
+    seed: '',
+    board: {
+      depots: createTuple(4, null),
+      foundations: createTuple(4, null),
+      tableau: createTuple(8, []),
+    },
   });
 
+  #history: StateData[] = [];
+  #undoHistory: StateData[] = [];
+
   get seed(): string {
-    return this.#seed;
+    return this.#data.seed;
   }
 
   get board(): DeepReadonly<BoardData> {
-    return this.#board;
+    return this.#data.board;
+  }
+
+  mutate<T>(callback: (state: StateData) => T): T {
+    this.#history.push($state.snapshot(this.#data));
+    if (history.length > 10000)
+      this.#history.shift();
+    this.#undoHistory = [];
+
+    return callback(this.#data);
+  }
+
+  undo(): void {
+    const data = this.#history.pop();
+    if (!data)
+      return;
+
+    this.#undoHistory.push($state.snapshot(this.#data));
+    this.#data = data;
+  }
+
+  redo(): void {
+    const data = this.#undoHistory.pop();
+    if (!data)
+      return;
+
+    this.#history.push($state.snapshot(this.#data));
+    this.#data = data;
+  }
+}
+
+export default class Game {
+  #state = new GameState();
+
+  get seed(): string {
+    return this.#state.seed;
+  }
+
+  get board(): DeepReadonly<BoardData> {
+    return this.#state.board;
   }
 
   card(ref: CardRef): Readonly<CardData> | null {
     switch (ref.zone) {
-      case BoardZone.Depots: return this.#board.depots[ref.cellIdx];
-      case BoardZone.Foundations: return this.#board.foundations[ref.cellIdx];
-      case BoardZone.Tableau: return this.#board.tableau[ref.columnIdx][ref.cardIdx];
+      case BoardZone.Depots: return this.board.depots[ref.cellIdx];
+      case BoardZone.Foundations: return this.board.foundations[ref.cellIdx];
+      case BoardZone.Tableau: return this.board.tableau[ref.columnIdx][ref.cardIdx];
     }
   }
 
   reset(seed?: string): void {
     const generator = new Generator(seed);
-    this.#seed = generator.state;
 
     const deck = ints(4 * 13, i => ({ rank: i % 13, suit: Math.floor(i / 13) }));
     const popCard = () => {
@@ -52,27 +100,30 @@ export default class Game {
       return deck.pop() as CardData;
     };
 
-    this.#board = {
-      depots: createTuple(4, null),
-      foundations: createTuple(4, null),
-      tableau: generateTuple(8, i => ints(i < 4 ? 7 : 6, popCard)),
-    };
+    this.#state.mutate((state) => {
+      state.seed = generator.state;
+      state.board = {
+        depots: createTuple(4, null),
+        foundations: createTuple(4, null),
+        tableau: generateTuple(8, i => ints(i < 4 ? 7 : 6, popCard)),
+      };
+    });
   }
 
   canMove(ref: MovableCardRef): boolean {
     switch (ref.zone) {
       case BoardZone.Depots: return true;
-      case BoardZone.Tableau: return isTableauSequence(this.#board.tableau[ref.columnIdx].slice(ref.cardIdx));
+      case BoardZone.Tableau: return isTableauSequence(this.board.tableau[ref.columnIdx].slice(ref.cardIdx));
     }
   }
 
   canMoveTo(ref: MovableCardRef, destination: MoveDestination): boolean {
     if (destination.zone === BoardZone.Tableau) {
-      const column = this.#board.tableau[destination.columnIdx];
+      const column = this.board.tableau[destination.columnIdx];
       return column.length > 0 ? isTableauSequence([column.at(-1)!, this.card(ref)!]) : true;
     }
 
-    if (ref.zone === BoardZone.Tableau && ref.cardIdx < this.#board.tableau[ref.columnIdx].length - 1)
+    if (ref.zone === BoardZone.Tableau && ref.cardIdx < this.board.tableau[ref.columnIdx].length - 1)
       return false;
 
     const destinationCard = this.card(destination);
@@ -91,34 +142,36 @@ export default class Game {
   move(ref: MovableCardRef, destination: MoveDestination): void {
     const card = this.card(ref)!;
 
-    switch (destination.zone) {
-      case BoardZone.Depots:
-        this.#board.depots[destination.cellIdx] = card;
-        break;
-      case BoardZone.Foundations:
-        this.#board.foundations[destination.cellIdx] = card;
-        break;
-      case BoardZone.Tableau: {
-        const column = this.#board.tableau[destination.columnIdx];
-        if (ref.zone === BoardZone.Tableau) {
-          column.push(...this.#board.tableau[ref.columnIdx].slice(ref.cardIdx));
+    this.#state.mutate((state) => {
+      switch (destination.zone) {
+        case BoardZone.Depots:
+          state.board.depots[destination.cellIdx] = card;
+          break;
+        case BoardZone.Foundations:
+          state.board.foundations[destination.cellIdx] = card;
+          break;
+        case BoardZone.Tableau: {
+          const column = state.board.tableau[destination.columnIdx];
+          if (ref.zone === BoardZone.Tableau) {
+            column.push(...this.board.tableau[ref.columnIdx].slice(ref.cardIdx));
+          }
+          else {
+            column.push(card);
+          }
+          break;
         }
-        else {
-          column.push(card);
-        }
-        break;
       }
-    }
 
-    switch (ref.zone) {
-      case BoardZone.Depots:
-        this.#board.depots[ref.cellIdx] = null;
-        break;
-      case BoardZone.Tableau:{
-        this.#board.tableau[ref.columnIdx].length = ref.cardIdx;
-        break;
+      switch (ref.zone) {
+        case BoardZone.Depots:
+          state.board.depots[ref.cellIdx] = null;
+          break;
+        case BoardZone.Tableau:{
+          state.board.tableau[ref.columnIdx].length = ref.cardIdx;
+          break;
+        }
       }
-    }
+    });
   }
 
   autoMove(ref: TableauCardRef): boolean {
@@ -133,5 +186,13 @@ export default class Game {
     }
 
     return false;
+  }
+
+  undo(): void {
+    this.#state.undo();
+  }
+
+  redo(): void {
+    this.#state.redo();
   }
 }
