@@ -14,7 +14,7 @@
   let dragging = false;
   let highlightedDestination: MoveDestination | null = $state(null);
 
-  function parseDragDestination(destination: HTMLElement) {
+  function parseDragDestination(destination: HTMLElement): MoveDestination {
     const zone = parseInt(destination.dataset.zone!);
     switch (zone) {
       case BoardZone.Depots:
@@ -57,7 +57,7 @@
     return destination;
   }
 
-  function onDoubleClick(ref: TableauCardRef) {
+  function onDoubleClick(ref: TableauCardRef): (ev: MouseEvent) => void {
     return (ev: MouseEvent) => {
       ev.stopPropagation();
 
@@ -65,7 +65,7 @@
     };
   }
 
-  function onDragStart(ref: MovableCardRef) {
+  function onDragStart(ref: MovableCardRef): () => boolean {
     return () => {
       if (dragging || !props.game.canMove(ref))
         return false;
@@ -75,7 +75,7 @@
     };
   }
 
-  function onDragMove(ref: MovableCardRef) {
+  function onDragMove(ref: MovableCardRef): (ev: PointerEvent) => void {
     return (ev: PointerEvent) => {
       let destination = findDragDestination(ref, ev);
       highlightedDestination = destination
@@ -86,7 +86,7 @@
     };
   }
 
-  function onDragEnd(ref: MovableCardRef) {
+  function onDragEnd(ref: MovableCardRef): (ev: PointerEvent, cancelled: boolean) => void {
     return (ev: PointerEvent, cancelled: boolean) => {
       highlightedDestination = null;
       dragging = false;

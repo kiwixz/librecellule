@@ -14,12 +14,12 @@
   let dragging = $state(false);
   let pointer: number;
 
-  function oncontextmenu(ev: Event) {
+  function oncontextmenu(ev: Event): void {
     if (dragging)
       ev.preventDefault();
   }
 
-  function onpointerdown(ev: PointerEvent) {
+  function onpointerdown(ev: PointerEvent): void {
     if (ev.button !== 0 || dragging)
       return;
 

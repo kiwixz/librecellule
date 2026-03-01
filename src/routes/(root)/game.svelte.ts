@@ -5,7 +5,7 @@ import { ints } from '$lib/range';
 import { createTuple, generateTuple } from '$lib/tuple';
 import { BoardZone } from './types';
 
-function isTableauSequence(sequence: CardData[]) {
+function isTableauSequence(sequence: CardData[]): boolean {
   const color = (card: CardData) => card.suit === 1 || card.suit === 2;
 
   for (let i = 1; i < sequence.length; ++i) {
@@ -24,7 +24,7 @@ export default class Game {
     tableau: createTuple(8, []),
   });
 
-  get seed() {
+  get seed(): string {
     return this.#seed;
   }
 
@@ -32,7 +32,7 @@ export default class Game {
     return this.#board;
   }
 
-  card(ref: CardRef) {
+  card(ref: CardRef): Readonly<CardData> | null {
     switch (ref.zone) {
       case BoardZone.Depots: return this.#board.depots[ref.cellIdx];
       case BoardZone.Foundations: return this.#board.foundations[ref.cellIdx];
@@ -40,7 +40,7 @@ export default class Game {
     }
   }
 
-  reset(seed?: string) {
+  reset(seed?: string): void {
     const generator = new Generator(seed);
     this.#seed = generator.state;
 
@@ -58,14 +58,14 @@ export default class Game {
     };
   }
 
-  canMove(ref: MovableCardRef) {
+  canMove(ref: MovableCardRef): boolean {
     switch (ref.zone) {
       case BoardZone.Depots: return true;
       case BoardZone.Tableau: return isTableauSequence(this.#board.tableau[ref.columnIdx].slice(ref.cardIdx));
     }
   }
 
-  canMoveTo(ref: MovableCardRef, destination: MoveDestination) {
+  canMoveTo(ref: MovableCardRef, destination: MoveDestination): boolean {
     if (destination.zone === BoardZone.Tableau) {
       const column = this.#board.tableau[destination.columnIdx];
       return column.length > 0 ? isTableauSequence([column.at(-1)!, this.card(ref)!]) : true;
@@ -87,7 +87,7 @@ export default class Game {
     }
   }
 
-  move(ref: MovableCardRef, destination: MoveDestination) {
+  move(ref: MovableCardRef, destination: MoveDestination): void {
     const card = this.card(ref)!;
 
     switch (destination.zone) {
@@ -120,7 +120,7 @@ export default class Game {
     }
   }
 
-  autoMove(ref: TableauCardRef) {
+  autoMove(ref: TableauCardRef): boolean {
     for (const zone of [BoardZone.Foundations, BoardZone.Depots]) {
       for (let i = 0; i < 4; ++i) {
         const destination = { zone, cellIdx: i } as MoveDestination;

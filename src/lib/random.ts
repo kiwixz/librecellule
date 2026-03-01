@@ -10,19 +10,19 @@ export class Generator { // xoshiro128+
     this.#state = new Uint32Array(ints(4, i => stateInt(i) || 0xaaaaaaaa));
   }
 
-  get state() {
+  get state(): string {
     return this.#state.reduce((r, int) => r + int.toString(16).padStart(8, '0'), '');
   }
 
-  next() {
+  next(): number {
     return this.nextInt32() / 2 ** 32;
   }
 
-  nextInt(choices: number) {
+  nextInt(choices: number): number {
     return Math.floor(this.next() * choices);
   }
 
-  nextInt32() {
+  nextInt32(): number {
     const result = (this.#state[0] + this.#state[3]) >>> 0;
 
     const t = this.#state[1] << 9;
@@ -39,6 +39,6 @@ export class Generator { // xoshiro128+
   }
 }
 
-export function randomInt(choices: number) {
+export function randomInt(choices: number): number {
   return Math.floor(Math.random() * choices);
 }
