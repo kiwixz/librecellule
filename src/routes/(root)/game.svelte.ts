@@ -1,5 +1,5 @@
 import type { DeepReadonly } from '$lib/types';
-import type { BoardData, CardData, CardRef, MovableCardRef, MoveDestination, TableauCardRef } from './types';
+import type { BoardData, CardData, CardRef, MovableCardRef, MoveDestination } from './types';
 
 import { Generator } from '$lib/random';
 import { ints } from '$lib/range';
@@ -174,8 +174,11 @@ export default class Game {
     });
   }
 
-  autoMove(ref: TableauCardRef): boolean {
+  autoMove(ref: MovableCardRef): boolean {
     for (const zone of [BoardZone.Foundations, BoardZone.Depots]) {
+      if (zone === ref.zone)
+        continue;
+
       for (let i = 0; i < 4; ++i) {
         const destination = { zone, cellIdx: i } as MoveDestination;
         if (this.canMoveTo(ref, destination)) {

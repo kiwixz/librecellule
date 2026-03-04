@@ -57,7 +57,7 @@
     return destination;
   }
 
-  function onDoubleClick(ref: TableauCardRef): (ev: MouseEvent) => void {
+  function onDoubleClick(ref: MovableCardRef): (ev: MouseEvent) => void {
     return (ev: MouseEvent) => {
       ev.stopPropagation();
 
@@ -110,7 +110,8 @@
         {@const ref: DepotCardRef = { zone: BoardZone.Depots, cellIdx }}
         <div data-zone={ref.zone} data-cell-idx={cellIdx}
             class="drag-destination"
-            class:highlighted={highlightedDestination?.zone === ref.zone && highlightedDestination.cellIdx === cellIdx}>
+            class:highlighted={highlightedDestination?.zone === ref.zone && highlightedDestination.cellIdx === cellIdx}
+            ondblclick={onDoubleClick(ref)}>
           <CardSpace>
             {#if card}
               <Draggable
