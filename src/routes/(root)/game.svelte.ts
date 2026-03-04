@@ -175,6 +175,17 @@ export default class Game {
   }
 
   autoMove(ref: MovableCardRef): boolean {
+    const card = this.card(ref)!;
+
+    if (card.rank === 0) {
+      const destination: MoveDestination = { zone: BoardZone.Foundations, cellIdx: card.suit };
+
+      if (this.canMoveTo(ref, destination)) {
+        this.move(ref, destination);
+        return true;
+      }
+    }
+
     for (const zone of [BoardZone.Foundations, BoardZone.Depots]) {
       if (zone === ref.zone)
         continue;
