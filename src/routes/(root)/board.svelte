@@ -180,20 +180,20 @@
 </div>
 
 <style>
-.piles {
-  display: flex;
-  padding: 2%;
-  align-items: start;
-  gap: 1%;
-}
-
-.drag-destination {
-  @media (prefers-reduced-motion: no-preference) {
-    transition: filter 200ms;
+  .piles {
+    display: flex;
+    padding: 2%;
+    align-items: start;
+    gap: 1%;
   }
 
-  &.highlighted {
-    filter: brightness(60%);
+  .drag-destination {
+    @media (prefers-reduced-motion: no-preference) {
+      transition: filter 200ms;
+    }
+
+    &.highlighted {
+      filter: brightness(60%);
+    }
   }
-}
 </style>
