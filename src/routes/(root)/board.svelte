@@ -103,7 +103,7 @@
   }
 </script>
 
-<div>
+<div class="select-none">
   <div class="flex">
     <div class="piles">
       {#each props.game.board.depots as card, cellIdx (cellIdx)}
