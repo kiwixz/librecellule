@@ -1,6 +1,17 @@
-export type DeepReadonly<T> = {
-  readonly [P in keyof T]:
-  T[P] extends object ? DeepReadonly<T[P]>
-    : T extends (infer R)[] ? DeepReadonly<R>
-      : T[P];
+import type { Tuple } from '$lib/tuple';
+
+export interface CardData {
+  suit: number;
+  rank: number;
+}
+
+export interface BoardData {
+  depots: Tuple<CardData | null, 4>;
+  foundations: Tuple<CardData | null, 4>;
+  tableau: Tuple<CardData[], 8>;
+}
+
+export interface GameData {
+  seed: string;
+  board: BoardData;
 };

@@ -5,7 +5,7 @@
 
   const game = new Game();
   if (browser)
-    game.reset();
+    game.load();
 
   function onkeydown(ev: KeyboardEvent): void {
     if ((ev.ctrlKey || ev.metaKey) && ev.key === 'z') {

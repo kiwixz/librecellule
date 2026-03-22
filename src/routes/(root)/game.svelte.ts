@@ -1,6 +1,8 @@
-import type { DeepReadonly } from '$lib/types';
-import type { BoardData, CardData, CardRef, MovableCardRef, MoveDestination } from './types';
+import type { DeepReadonly } from '$lib/deep_readonly';
+import type { BoardData, CardData, GameData } from '$lib/types';
+import type { CardRef, MovableCardRef, MoveDestination } from './types';
 
+import Database from '$lib/database';
 import { Generator } from '$lib/random';
 import { ints } from '$lib/range';
 import { createTuple, generateTuple } from '$lib/tuple';
@@ -17,13 +19,8 @@ function isTableauSequence(sequence: CardData[]): boolean {
   return true;
 }
 
-interface StateData {
-  seed: string;
-  board: BoardData;
-};
-
 class GameState {
-  #data: StateData = $state({
+  #data: GameData = $state({
     seed: '',
     board: {
       depots: createTuple(4, null),
@@ -32,8 +29,10 @@ class GameState {
     },
   });
 
-  #history: StateData[] = [];
-  #undoHistory: StateData[] = [];
+  #database = new Database();
+
+  #history: GameData[] = [];
+  #undoHistory: GameData[] = [];
 
   get seed(): string {
     return this.#data.seed;
@@ -43,13 +42,24 @@ class GameState {
     return this.#data.board;
   }
 
-  mutate<T>(callback: (state: StateData) => T): T {
+  mutate<T>(callback: (state: GameData) => T): T {
     this.#history.push($state.snapshot(this.#data));
     if (history.length > 10000)
       this.#history.shift();
     this.#undoHistory = [];
 
-    return callback(this.#data);
+    const r = callback(this.#data);
+    this.#save();
+    return r;
+  }
+
+  async load(): Promise<boolean> {
+    const data = await this.#database.readGameData();
+    if (!data)
+      return false;
+
+    this.#data = data;
+    return true;
   }
 
   undo(): void {
@@ -59,6 +69,7 @@ class GameState {
 
     this.#undoHistory.push($state.snapshot(this.#data));
     this.#data = data;
+    this.#save();
   }
 
   redo(): void {
@@ -68,6 +79,11 @@ class GameState {
 
     this.#history.push($state.snapshot(this.#data));
     this.#data = data;
+    this.#save();
+  }
+
+  #save(): void {
+    this.#database.writeGameData($state.snapshot(this.#data));
   }
 }
 
@@ -219,6 +235,11 @@ export default class Game {
     }
 
     return false;
+  }
+
+  async load(): Promise<void> {
+    if (!await this.#state.load())
+      this.reset();
   }
 
   undo(): void {

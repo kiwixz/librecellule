@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { CardData } from './types';
+  import type { CardData } from '$lib/types';
 
   import spritesheet from '$lib/paris.svg';
 
