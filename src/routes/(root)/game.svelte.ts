@@ -90,6 +90,54 @@ export default class Game {
     }
   }
 
+  maxSupermove(toEmptyColumn: boolean): number {
+    const emptyDepots = this.board.depots.reduce((r, card) => r + +(card === null), 0);
+    const emptyColumns = this.board.tableau.reduce((r, card) => r + +(card.length === 0), 0);
+    const temporaryColumns = emptyColumns - +toEmptyColumn;
+    return (1 + emptyDepots) * (2 ** temporaryColumns);
+  }
+
+  canMove(ref: MovableCardRef): boolean {
+    switch (ref.zone) {
+      case BoardZone.Depots:
+        return true;
+
+      case BoardZone.Tableau:{
+        const sequence = this.board.tableau[ref.columnIdx].slice(ref.cardIdx);
+        return sequence.length === 1
+          || (isTableauSequence(sequence)
+            && sequence.length <= this.maxSupermove(false));
+      }
+    }
+  }
+
+  canMoveTo(ref: MovableCardRef, destination: MoveDestination): boolean {
+    if (destination.zone === BoardZone.Tableau) {
+      const column = this.board.tableau[destination.columnIdx];
+      if (column.length > 0)
+        return isTableauSequence([column.at(-1)!, this.card(ref)!]);
+      if (ref.zone !== BoardZone.Tableau)
+        return true;
+      const supermove = this.board.tableau[ref.columnIdx].length - ref.cardIdx;
+      return supermove <= this.maxSupermove(true);
+    }
+
+    if (ref.zone === BoardZone.Tableau && ref.cardIdx < this.board.tableau[ref.columnIdx].length - 1)
+      return false;
+
+    const destinationCard = this.card(destination);
+
+    switch (destination.zone) {
+      case BoardZone.Depots:
+        return destinationCard === null;
+      case BoardZone.Foundations: {
+        const card = this.card(ref)!;
+        return (card.rank === 0 && destinationCard === null)
+          || (card.suit === destinationCard?.suit && card.rank === destinationCard.rank + 1);
+      }
+    }
+  }
+
   reset(seed?: string): void {
     const generator = new Generator(seed);
 
@@ -108,35 +156,6 @@ export default class Game {
         tableau: generateTuple(8, i => ints(i < 4 ? 7 : 6, popCard)),
       };
     });
-  }
-
-  canMove(ref: MovableCardRef): boolean {
-    switch (ref.zone) {
-      case BoardZone.Depots: return true;
-      case BoardZone.Tableau: return isTableauSequence(this.board.tableau[ref.columnIdx].slice(ref.cardIdx));
-    }
-  }
-
-  canMoveTo(ref: MovableCardRef, destination: MoveDestination): boolean {
-    if (destination.zone === BoardZone.Tableau) {
-      const column = this.board.tableau[destination.columnIdx];
-      return column.length > 0 ? isTableauSequence([column.at(-1)!, this.card(ref)!]) : true;
-    }
-
-    if (ref.zone === BoardZone.Tableau && ref.cardIdx < this.board.tableau[ref.columnIdx].length - 1)
-      return false;
-
-    const destinationCard = this.card(destination);
-
-    switch (destination.zone) {
-      case BoardZone.Depots:
-        return destinationCard === null;
-      case BoardZone.Foundations: {
-        const card = this.card(ref)!;
-        return (card.rank === 0 && destinationCard === null)
-          || (card.suit === destinationCard?.suit && card.rank === destinationCard.rank + 1);
-      }
-    }
   }
 
   move(ref: MovableCardRef, destination: MoveDestination): void {
