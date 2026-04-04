@@ -31,8 +31,8 @@ class GameState {
 
   #database = new Database();
 
-  #history: GameData[] = [];
-  #undoHistory: GameData[] = [];
+  #history: GameData[] = $state([]);
+  #undoHistory: GameData[] = $state([]);
 
   get seed(): string {
     return this.#data.seed;
@@ -40,6 +40,14 @@ class GameState {
 
   get board(): DeepReadonly<BoardData> {
     return this.#data.board;
+  }
+
+  canUndo(): boolean {
+    return this.#history.length > 0;
+  }
+
+  canRedo(): boolean {
+    return this.#undoHistory.length > 0;
   }
 
   mutate<T>(callback: (state: GameData) => T): T {
@@ -152,6 +160,14 @@ export default class Game {
           || (card.suit === destinationCard?.suit && card.rank === destinationCard.rank + 1);
       }
     }
+  }
+
+  canUndo(): boolean {
+    return this.#state.canUndo();
+  }
+
+  canRedo(): boolean {
+    return this.#state.canRedo();
   }
 
   reset(seed?: string): void {
