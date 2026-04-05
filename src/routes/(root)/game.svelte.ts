@@ -52,7 +52,7 @@ class GameState {
 
   mutate<T>(callback: (state: GameData) => T): T {
     this.#history.push($state.snapshot(this.#data));
-    if (history.length > 10000)
+    if (this.#history.length > 10000)
       this.#history.shift();
     this.#undoHistory = [];
 
