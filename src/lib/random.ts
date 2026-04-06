@@ -7,7 +7,7 @@ export class Generator { // xoshiro128+
     const stateInt = seed
       ? (i: number) => parseInt(seed.slice(i * 8, (i + 1) * 8).padEnd(8, '0'), 16)
       : () => randomInt(2 ** 32);
-    this.#state = new Uint32Array(ints(4, i => stateInt(i) || 0xaaaaaaaa));
+    this.#state = new Uint32Array(ints(4, i => stateInt(i) || 0x12345678 << i));
   }
 
   get state(): string {
@@ -33,7 +33,7 @@ export class Generator { // xoshiro128+
     this.#state[0] ^= this.#state[3];
 
     this.#state[2] ^= t;
-    this.#state[3] = this.#state[3] << 11 | this.#state[3] >> (32 - 11);
+    this.#state[3] = this.#state[3] << 11 | this.#state[3] >>> (32 - 11);
 
     return result;
   }
