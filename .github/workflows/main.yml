@@ -29,6 +29,7 @@ jobs:
     - name: Lint
       run: |
         npm run check
+        npm test
         npm run lint
 
   deploy:
