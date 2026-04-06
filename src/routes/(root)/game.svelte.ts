@@ -1,4 +1,5 @@
 import type { DeepReadonly } from '$lib/deep_readonly';
+import type { MaybePromise } from '$lib/maybe_promise';
 import type { BoardData, CardData, GameData } from '$lib/types';
 import type { CardRef, MovableCardRef, MoveDestination } from './types';
 
@@ -50,14 +51,14 @@ class GameState {
     return this.#undoHistory.length > 0;
   }
 
-  mutate<T>(callback: (state: GameData) => T): T {
+  async mutate<T>(callback: (state: GameData) => MaybePromise<T>): Promise<T> {
     this.#history.push($state.snapshot(this.#data));
     if (this.#history.length > 10000)
       this.#history.shift();
     this.#undoHistory = [];
 
-    const r = callback(this.#data);
-    this.#save();
+    const r = await callback(this.#data);
+    await this.#save();
     return r;
   }
 
@@ -70,28 +71,28 @@ class GameState {
     return true;
   }
 
-  undo(): void {
+  async undo(): Promise<void> {
     const data = this.#history.pop();
     if (!data)
       return;
 
     this.#undoHistory.push($state.snapshot(this.#data));
     this.#data = data;
-    this.#save();
+    await this.#save();
   }
 
-  redo(): void {
+  async redo(): Promise<void> {
     const data = this.#undoHistory.pop();
     if (!data)
       return;
 
     this.#history.push($state.snapshot(this.#data));
     this.#data = data;
-    this.#save();
+    await this.#save();
   }
 
-  #save(): void {
-    this.#database.writeGameData($state.snapshot(this.#data));
+  async #save(): Promise<void> {
+    await this.#database.writeGameData($state.snapshot(this.#data));
   }
 }
 
@@ -170,7 +171,7 @@ export default class Game {
     return this.#state.canRedo();
   }
 
-  reset(seed?: string): void {
+  async reset(seed?: string): Promise<void> {
     const generator = new Generator(seed);
 
     const deck = ints(4 * 13, i => ({ rank: i % 13, suit: Math.floor(i / 13) }));
@@ -180,7 +181,7 @@ export default class Game {
       return deck.pop() as CardData;
     };
 
-    this.#state.mutate((state) => {
+    await this.#state.mutate((state) => {
       state.seed = generator.state;
       state.board = {
         depots: createTuple(4, null),
@@ -190,10 +191,10 @@ export default class Game {
     });
   }
 
-  move(ref: MovableCardRef, destination: MoveDestination): void {
+  async move(ref: MovableCardRef, destination: MoveDestination): Promise<void> {
     const card = this.card(ref)!;
 
-    this.#state.mutate((state) => {
+    await this.#state.mutate((state) => {
       switch (destination.zone) {
         case BoardZone.Depots:
           state.board.depots[destination.cellIdx] = card;
@@ -255,14 +256,14 @@ export default class Game {
 
   async load(): Promise<void> {
     if (!await this.#state.load())
-      this.reset();
+      await this.reset();
   }
 
-  undo(): void {
-    this.#state.undo();
+  async undo(): Promise<void> {
+    await this.#state.undo();
   }
 
-  redo(): void {
-    this.#state.redo();
+  async redo(): Promise<void> {
+    await this.#state.redo();
   }
 }
