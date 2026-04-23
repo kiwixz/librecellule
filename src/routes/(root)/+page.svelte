@@ -45,7 +45,7 @@
     </div>
 
     <div class="ml-auto leading-none break-all">
-      {game?.seed}
+      {game.seed}
     </div>
   </div>
 </div>

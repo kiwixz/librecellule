@@ -226,14 +226,14 @@ export default class Game {
     });
   }
 
-  autoMove(ref: MovableCardRef): boolean {
+  async autoMove(ref: MovableCardRef): Promise<boolean> {
     const card = this.card(ref)!;
 
     if (card.rank === 0) {
       const destination: MoveDestination = { zone: BoardZone.Foundations, cellIdx: card.suit };
 
       if (this.canMoveTo(ref, destination)) {
-        this.move(ref, destination);
+        await this.move(ref, destination);
         return true;
       }
     }
@@ -245,7 +245,7 @@ export default class Game {
       for (let i = 0; i < 4; ++i) {
         const destination = { zone, cellIdx: i } as MoveDestination;
         if (this.canMoveTo(ref, destination)) {
-          this.move(ref, destination);
+          await this.move(ref, destination);
           return true;
         }
       }
