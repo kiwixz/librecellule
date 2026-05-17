@@ -4,19 +4,33 @@
   src: url(@fontsource-variable/inter/files/inter-latin-opsz-normal.woff2);
 }
 
+
 @import 'tailwindcss';
-@plugin 'daisyui';
+
+@plugin 'daisyui' {
+  themes: false;
+}
+
 
 @theme {
   --default-font-family: Inter;
 }
 
+@plugin 'daisyui/theme' {
+  name: dark;
+  default: true;
+
+  --color-base-content: #00ffae;
+  --color-base-100: #004f33;
+  --color-base-200: #002a19;
+  --color-base-300: #00190d;
+}
+
 :root {
-  color: #00ff9a;
   overscroll-behavior-y: contain;
 }
 
 .lucide {
-  width: 1.2em;
-  height: 1.2em;
+  width: 1.25em;
+  height: 1.25em;
 }
