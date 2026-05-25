@@ -24,17 +24,17 @@
 <svelte:window {onkeydown} />
 
 <div class="relative min-h-dvh">
-  <main class="max-w-[120lvmin] mx-auto">
+  <main class="mx-auto max-w-[120lvmin]">
     <Board {game} />
   </main>
 
-  <div class="absolute bottom-0 p-1 w-full flex flex-wrap gap-2 items-end">
+  <div class="absolute bottom-0 p-2 w-full flex flex-wrap justify-between gap-2 items-end">
     <div class="dropdown dropdown-top">
       <div tabindex="0" role="button" class="btn btn-square" aria-label="Menu"><!-- safari cant focus buttons -->
         <Menu />
       </div>
 
-      <ul class="mb-1 w-40 dropdown-content bg-base-200 rounded-box shadow menu">
+      <ul class="mb-1 w-40 dropdown-content bg-base-200 rounded-box shadow menu [&>li>*]:py-2">
         <li>
           <button onclick={() => game.reset()}>
             <Shuffle /> New Deal
@@ -43,7 +43,7 @@
       </ul>
     </div>
 
-    <div class="ml-auto flex flex-col flex-wrap gap-1">
+    <div class="flex flex-col flex-wrap gap-2">
       {#if game.canRedo()}
         <button class="btn" onclick={() => game.redo()}>
           <Redo /> Redo
