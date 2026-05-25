@@ -32,6 +32,20 @@
   }
 }
 
+@utility label {
+  color: inherit;
+}
+
+@utility toggle {
+  @variant checked {
+    background-color: var(--color-base-content);
+
+    @variant before {
+      color: var(--color-base-100);
+    }
+  }
+}
+
 html {
   overscroll-behavior-y: contain;
 }

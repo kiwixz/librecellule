@@ -1,5 +1,5 @@
 import type { IDBPDatabase } from 'idb';
-import type { GameData } from '$lib/types';
+import type { GameData, SettingsData } from '$lib/types';
 
 import { openDB } from 'idb';
 
@@ -11,6 +11,16 @@ function upgrade(database: IDBPDatabase, version: number): void {
 class Impl {
   #database: IDBPDatabase | null = null;
   #openingPromise: Promise<void> | null = null;
+
+  async readSettings(): Promise<SettingsData | undefined> {
+    await this.#open();
+    return await this.#database!.get('kv', 'settings');
+  }
+
+  async writeSettings(state: SettingsData): Promise<void> {
+    await this.#open();
+    await this.#database!.put('kv', state, 'settings');
+  }
 
   async readGameData(): Promise<GameData | undefined> {
     await this.#open();

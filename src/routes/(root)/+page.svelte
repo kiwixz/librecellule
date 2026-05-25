@@ -1,9 +1,11 @@
 <script lang="ts">
   import { browser } from '$app/environment';
+  import { resolve } from '$app/paths';
   import Menu from '@lucide/svelte/icons/menu';
   import Redo from '@lucide/svelte/icons/redo-2';
   import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
   import Shuffle from '@lucide/svelte/icons/shuffle';
+  import Settings from '@lucide/svelte/icons/settings';
   import Undo from '@lucide/svelte/icons/undo-2';
   import Board from './board.svelte';
   import Game from './game.svelte';
@@ -36,6 +38,11 @@
       </div>
 
       <ul class="mb-1 w-40 dropdown-content bg-base-200 rounded-box shadow menu [&>li>*]:py-2">
+        <li>
+          <a href={resolve('/settings')}>
+            <Settings /> Settings
+          </a>
+        </li>
         <li>
           <button onclick={() => game.reset()}>
             <Shuffle /> New Deal

@@ -2,6 +2,7 @@
   import type { DepotCardRef, FoundationCardRef, MovableCardRef, MoveDestination, TableauCardRef } from './types';
 
   import { calcCenter } from '$lib/geometry';
+  import settings from '$lib/settings.svelte';
   import unreachable from '$lib/unreachable';
   import Card from './card.svelte';
   import CardSpace from './card_space.svelte';
@@ -125,7 +126,7 @@
           return;
 
         await props.game.move(ref, destination);
-        if (props.game.canAutoWin())
+        if (settings.autoWin && props.game.canAutoWin())
           autoWin();
       });
     };

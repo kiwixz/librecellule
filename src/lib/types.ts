@@ -1,5 +1,9 @@
 import type { Tuple } from '$lib/tuple';
 
+export interface SettingsData {
+  autoWin: boolean;
+};
+
 export interface CardData {
   suit: number;
   rank: number;
