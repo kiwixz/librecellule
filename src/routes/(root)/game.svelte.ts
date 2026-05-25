@@ -3,7 +3,7 @@ import type { MaybePromise } from '$lib/maybe_promise';
 import type { BoardData, CardData, GameData } from '$lib/types';
 import type { CardRef, MovableCardRef, MoveDestination } from './types';
 
-import Database from '$lib/database';
+import database from '$lib/database';
 import { Generator } from '$lib/random';
 import { ints } from '$lib/range';
 import { createTuple, generateTuple } from '$lib/tuple';
@@ -29,8 +29,6 @@ class GameState {
       tableau: createTuple(8, []),
     },
   });
-
-  #database = new Database();
 
   #history: GameData[] = $state([]);
   #undoHistory: GameData[] = $state([]);
@@ -63,7 +61,7 @@ class GameState {
   }
 
   async load(): Promise<boolean> {
-    const data = await this.#database.readGameData();
+    const data = await database.readGameData();
     if (!data)
       return false;
 
@@ -92,7 +90,7 @@ class GameState {
   }
 
   async #save(): Promise<void> {
-    await this.#database.writeGameData($state.snapshot(this.#data));
+    await database.writeGameData($state.snapshot(this.#data));
   }
 }
 

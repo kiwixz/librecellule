@@ -8,11 +8,21 @@ function upgrade(database: IDBPDatabase, version: number): void {
     database.createObjectStore('kv');
 }
 
-export default class Database {
+class Impl {
   #database: IDBPDatabase | null = null;
   #openingPromise: Promise<void> | null = null;
 
-  async open(): Promise<void> {
+  async readGameData(): Promise<GameData | undefined> {
+    await this.#open();
+    return await this.#database!.get('kv', 'game');
+  }
+
+  async writeGameData(state: GameData): Promise<void> {
+    await this.#open();
+    await this.#database!.put('kv', state, 'game');
+  }
+
+  async #open(): Promise<void> {
     if (this.#database)
       return;
     if (this.#openingPromise)
@@ -28,14 +38,6 @@ export default class Database {
     })();
     return this.#openingPromise;
   }
-
-  async readGameData(): Promise<GameData | undefined> {
-    await this.open();
-    return await this.#database?.get('kv', 'game');
-  }
-
-  async writeGameData(state: GameData): Promise<void> {
-    await this.open();
-    await this.#database!.put('kv', state, 'game');
-  }
 }
+
+export default new Impl();
