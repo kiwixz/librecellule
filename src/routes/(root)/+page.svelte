@@ -1,9 +1,10 @@
 <script lang="ts">
   import { browser } from '$app/environment';
   import Menu from '@lucide/svelte/icons/menu';
-  import Undo from '@lucide/svelte/icons/undo-2';
   import Redo from '@lucide/svelte/icons/redo-2';
+  import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
   import Shuffle from '@lucide/svelte/icons/shuffle';
+  import Undo from '@lucide/svelte/icons/undo-2';
   import Board from './board.svelte';
   import Game from './game.svelte';
 
@@ -38,6 +39,11 @@
         <li>
           <button onclick={() => game.reset()}>
             <Shuffle /> New Deal
+          </button>
+        </li>
+        <li>
+          <button onclick={() => game.reset(game.seed)}>
+            <RotateCcw /> Restart
           </button>
         </li>
       </ul>
