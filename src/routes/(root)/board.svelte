@@ -27,7 +27,8 @@
   }
 
   function findDragDestination(ref: MovableCardRef, ev: PointerEvent): MoveDestination | undefined {
-    const bounds = (ev.target as Element).getBoundingClientRect();
+    const element = ev.currentTarget as Element;
+    const bounds = element.getBoundingClientRect();
     const center = calcCenter(bounds);
 
     let destination;
@@ -37,15 +38,15 @@
         corner % 2 === 0 ? bounds.left : bounds.right,
         corner < 2 ? bounds.top : bounds.bottom);
 
-      const destinationElement = elements.find(el => el.classList.contains('drag-destination')) as HTMLElement | undefined;
-      if (!destinationElement)
+      const destElement = elements.find(el => el.classList.contains('drag-destination')) as HTMLElement | undefined;
+      if (!destElement)
         continue;
 
-      const newDestination = parseDragDestination(destinationElement);
+      const newDestination = parseDragDestination(destElement);
       if (!props.game.canMoveTo(ref, newDestination))
         continue;
 
-      const destBounds = destinationElement.getBoundingClientRect();
+      const destBounds = destElement.getBoundingClientRect();
       const destCenter = calcCenter(destBounds);
       const newDistanceSqr = (destCenter.x - center.x) ** 2 + (destCenter.y - center.y) ** 2;
       if (newDistanceSqr < distanceSqr) {
