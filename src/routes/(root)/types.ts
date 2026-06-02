@@ -20,10 +20,12 @@ export interface TableauCardRef {
 export type MovableCardRef = DepotCardRef | TableauCardRef;
 export type CardRef = DepotCardRef | FoundationCardRef | TableauCardRef;
 
-export type MoveDestination = {
+export type AutoMoveDestination = {
   zone: BoardZone.Depots | BoardZone.Foundations;
   cellIdx: number;
-} | {
+};
+
+export type MoveDestination = AutoMoveDestination | {
   zone: BoardZone.Tableau;
   columnIdx: number;
 };

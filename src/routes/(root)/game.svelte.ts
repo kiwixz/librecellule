@@ -1,7 +1,7 @@
 import type { DeepReadonly } from '$lib/deep_readonly';
 import type { MaybePromise } from '$lib/maybe_promise';
 import type { BoardData, CardData, GameData } from '$lib/types';
-import type { CardRef, MovableCardRef, MoveDestination } from './types';
+import type { AutoMoveDestination, CardRef, MovableCardRef, MoveDestination } from './types';
 
 import database from '$lib/database';
 import { Generator } from '$lib/random';
@@ -161,6 +161,29 @@ export default class Game {
     }
   }
 
+  autoMove(ref: MovableCardRef): AutoMoveDestination | null {
+    const card = this.card(ref)!;
+
+    if (card.rank === 0) {
+      const destination: AutoMoveDestination = { zone: BoardZone.Foundations, cellIdx: card.suit };
+      if (this.canMoveTo(ref, destination))
+        return destination;
+    }
+
+    for (const zone of [BoardZone.Foundations, BoardZone.Depots]) {
+      if (zone === ref.zone)
+        continue;
+
+      for (let i = 0; i < 4; ++i) {
+        const destination = { zone, cellIdx: i } as AutoMoveDestination;
+        if (this.canMoveTo(ref, destination))
+          return destination;
+      }
+    }
+
+    return null;
+  }
+
   canUndo(): boolean {
     return this.#state.canUndo();
   }
@@ -222,34 +245,6 @@ export default class Game {
         }
       }
     });
-  }
-
-  async autoMove(ref: MovableCardRef): Promise<boolean> {
-    const card = this.card(ref)!;
-
-    if (card.rank === 0) {
-      const destination: MoveDestination = { zone: BoardZone.Foundations, cellIdx: card.suit };
-
-      if (this.canMoveTo(ref, destination)) {
-        await this.move(ref, destination);
-        return true;
-      }
-    }
-
-    for (const zone of [BoardZone.Foundations, BoardZone.Depots]) {
-      if (zone === ref.zone)
-        continue;
-
-      for (let i = 0; i < 4; ++i) {
-        const destination = { zone, cellIdx: i } as MoveDestination;
-        if (this.canMoveTo(ref, destination)) {
-          await this.move(ref, destination);
-          return true;
-        }
-      }
-    }
-
-    return false;
   }
 
   async load(): Promise<void> {
