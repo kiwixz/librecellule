@@ -24,12 +24,12 @@
 
 <svelte:window {onkeydown} />
 
-<div class="relative min-h-dvh">
+<div class="min-h-dvh">
   <main class="mx-auto max-w-[120lvmin]">
     <Board {game} />
   </main>
 
-  <div class="absolute bottom-0 p-2 w-full flex flex-wrap justify-between gap-2 items-end">
+  <div class="fixed bottom-0 p-2 w-full flex flex-wrap justify-between gap-2 items-end">
     <div class="dropdown dropdown-top">
       <div tabindex="0" role="button" class="btn btn-square" aria-label="Menu"><!-- safari cant focus buttons -->
         <Menu />
