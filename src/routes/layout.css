@@ -26,7 +26,7 @@
   --color-base-300: #00190d;
 }
 
-:root {
+html {
   overscroll-behavior-y: contain;
 }
 
