@@ -3,8 +3,8 @@ type TupleImpl<T, L extends number, R extends T[] = []>
 export type Tuple<T, L extends number> = TupleImpl<T, L>;
 
 export function createTuple<T, L extends number>(length: L, value: T): Tuple<T, L> {
-  return Array(length).fill(value) as Tuple<T, L>;
-};
+  return generateTuple(length, () => structuredClone(value));
+}
 
 export function generateTuple<L extends number, T>(length: L, map: ((index: number) => T)): Tuple<T, L> {
   return Array.from({ length }, (_, index) => map(index)) as Tuple<T, L>;
