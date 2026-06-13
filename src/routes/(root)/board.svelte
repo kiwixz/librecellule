@@ -64,19 +64,18 @@
 
       const element = ev.currentTarget as Element;
 
-      const destination = props.game.autoMove(ref);
+      const destination = props.game.canAutoMove(ref);
       if (!destination)
         return;
 
       const destSelector = `.drag-destination[data-zone="${destination.zone}"][data-cell-idx="${destination.cellIdx}"]`;
-      const destElement = document.querySelector(destSelector) as Element | undefined;
-      if (!destElement)
-        return;
+      const destElement = document.querySelector(destSelector);
 
       const bounds = element.getBoundingClientRect();
-      const destBounds = destElement.getBoundingClientRect();
+      const destBounds = destElement!.getBoundingClientRect();
       const deltaX = destBounds.left - bounds.left;
       const deltaY = destBounds.top - bounds.top;
+
       element.animate([
         { zIndex: 1 },
         { zIndex: 1, translate: `${deltaX}px ${deltaY}px` },
@@ -133,37 +132,36 @@
     <div class="piles">
       {#each props.game.board.depots as card, cellIdx (cellIdx)}
         {@const ref: DepotCardRef = { zone: BoardZone.Depots, cellIdx }}
-        <div data-zone={ref.zone} data-cell-idx={cellIdx}
-            class="drag-destination"
-            class:highlighted={highlightedDestination?.zone === ref.zone && highlightedDestination.cellIdx === cellIdx}>
-          <CardSpace>
-            <div class="relative" ondblclick={onDoubleClick(ref)}>
-              {#if card}
-                <Draggable
-                    onstart={onDragStart(ref)}
-                    onmove={onDragMove(ref)}
-                    onend={onDragEnd(ref)}>
-                  <Card data={card} />
-                </Draggable>
-              {/if}
-            </div>
-          </CardSpace>
-        </div>
+        <CardSpace>
+          <div data-zone={ref.zone} data-cell-idx={cellIdx}
+            class="relative drag-destination"
+            class:highlighted={highlightedDestination?.zone === ref.zone && highlightedDestination.cellIdx === cellIdx}
+            ondblclick={onDoubleClick(ref)}>
+            {#if card}
+              <Draggable
+                  onstart={onDragStart(ref)}
+                  onmove={onDragMove(ref)}
+                  onend={onDragEnd(ref)}>
+                <Card data={card} />
+              </Draggable>
+            {/if}
+          </div>
+        </CardSpace>
       {/each}
     </div>
 
     <div class="piles">
       {#each props.game.board.foundations as card, cellIdx (cellIdx)}
       {@const ref: FoundationCardRef = { zone: BoardZone.Foundations, cellIdx }}
-        <div data-zone={ref.zone} data-cell-idx={cellIdx}
+        <CardSpace>
+          <div data-zone={ref.zone} data-cell-idx={cellIdx}
             class="drag-destination"
             class:highlighted={highlightedDestination?.zone === ref.zone && highlightedDestination.cellIdx === cellIdx}>
-          <CardSpace>
             {#if card}
               <Card data={card} />
             {/if}
-          </CardSpace>
-        </div>
+          </div>
+        </CardSpace>
       {/each}
     </div>
   </div>
@@ -178,23 +176,23 @@
             {#snippet recurse(cardIdx = 0)}
               {@const ref: TableauCardRef = { zone: BoardZone.Tableau, columnIdx, cardIdx }}
               <div data-zone={ref.zone} data-column-idx={columnIdx}
+                  class="relative"
                   class:drag-destination={cardIdx === column.length - 1}
-                  class:highlighted={cardIdx === column.length - 1 && highlightedDestination?.zone === ref.zone && highlightedDestination.columnIdx === columnIdx}>
-                <div class="relative" ondblclick={onDoubleClick(ref)}>
-                  <Draggable
-                      onstart={onDragStart(ref)}
-                      onmove={onDragMove(ref)}
-                      onend={onDragEnd(ref)}>
-                    {#snippet handle()}
-                      <Card data={column[cardIdx]} />
-                    {/snippet}
-                    {#if cardIdx < column.length - 1}
-                      <div class="mt-[round(40%,1px)]">
-                        {@render recurse(cardIdx + 1)}
-                      </div>
-                    {/if}
-                  </Draggable>
-                </div>
+                  class:highlighted={cardIdx === column.length - 1 && highlightedDestination?.zone === ref.zone && highlightedDestination.columnIdx === columnIdx}
+                  ondblclick={onDoubleClick(ref)}>
+                <Draggable
+                    onstart={onDragStart(ref)}
+                    onmove={onDragMove(ref)}
+                    onend={onDragEnd(ref)}>
+                  {#snippet handle()}
+                    <Card data={column[cardIdx]} />
+                  {/snippet}
+                  {#if cardIdx < column.length - 1}
+                    <div class="mt-[round(40%,1px)]">
+                      {@render recurse(cardIdx + 1)}
+                    </div>
+                  {/if}
+                </Draggable>
               </div>
             {/snippet}
 

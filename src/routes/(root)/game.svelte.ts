@@ -161,7 +161,7 @@ export default class Game {
     }
   }
 
-  autoMove(ref: MovableCardRef): AutoMoveDestination | null {
+  canAutoMove(ref: MovableCardRef): AutoMoveDestination | null {
     const card = this.card(ref)!;
 
     if (card.rank === 0) {

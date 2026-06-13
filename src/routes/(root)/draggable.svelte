@@ -64,7 +64,7 @@
 
 <div bind:this={self} class="relative"
     class:will-change-[translate]={dragging}
-    class:z-1={dragging}>
+    class:z-2={dragging}>
   {#if props.handle}
     <div class="grid *:row-1 *:col-1">
       {@render props.children()}
