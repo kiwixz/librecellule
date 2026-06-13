@@ -11,11 +11,6 @@
   themes: false;
 }
 
-
-@theme {
-  --default-font-family: Inter;
-}
-
 @plugin 'daisyui/theme' {
   name: dark;
   default: true;
@@ -26,11 +21,17 @@
   --color-base-300: #00190d;
 }
 
-html {
-  overscroll-behavior-y: contain;
+@theme {
+  --default-font-family: Inter;
 }
 
-.lucide {
-  width: 1.25em;
-  height: 1.25em;
+@layer base {
+  .lucide {
+    width: 1.25em;
+    height: 1.25em;
+  }
+}
+
+html {
+  overscroll-behavior-y: contain;
 }
