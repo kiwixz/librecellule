@@ -113,6 +113,37 @@ export default class Game {
     }
   }
 
+  lowestMovableCard(): MovableCardRef | null {
+    let r: MovableCardRef | null = null;
+    let lowest: CardData | null = null;
+
+    for (const [cellIdx, card] of this.board.depots.entries()) {
+      if (!card)
+        continue;
+
+      if (lowest && card.rank >= lowest.rank)
+        continue;
+
+      r = { zone: BoardZone.Depots, cellIdx };
+      lowest = card;
+    }
+
+    for (const [columnIdx, column] of this.board.tableau.entries()) {
+      if (column.length === 0)
+        continue;
+
+      const card = column.at(-1)!;
+
+      if (lowest && card.rank >= lowest.rank)
+        continue;
+
+      r = { zone: BoardZone.Tableau, columnIdx, cardIdx: column.length - 1 };
+      lowest = card;
+    }
+
+    return r;
+  }
+
   maxSupermove(toEmptyColumn: boolean): number {
     const emptyDepots = this.board.depots.reduce((r, card) => r + +(card === null), 0);
     const emptyColumns = this.board.tableau.reduce((r, card) => r + +(card.length === 0), 0);
@@ -182,6 +213,16 @@ export default class Game {
     }
 
     return null;
+  }
+
+  canAutoWin(): boolean {
+    for (const column of this.board.tableau) {
+      for (let i = 1; i < column.length; ++i) {
+        if (column[i].rank > column[i - 1].rank)
+          return false;
+      }
+    }
+    return true;
   }
 
   canUndo(): boolean {

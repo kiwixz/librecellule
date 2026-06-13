@@ -58,6 +58,56 @@
     return destination;
   }
 
+  function findCardElement(ref: MoveDestination): Element | null {
+    const selector = `.drag-destination[data-zone="${ref.zone}"]` + (() => {
+      switch (ref.zone) {
+        case BoardZone.Depots:
+        case BoardZone.Foundations:
+          return `[data-cell-idx="${ref.cellIdx}"]`;
+        case BoardZone.Tableau:
+          return `[data-column-idx="${ref.columnIdx}"]`;
+      }
+    })();
+
+    return document.querySelector(selector);
+  }
+
+  function moveAnimation(element: Element, destination: Element, finish: (ev: AnimationPlaybackEvent) => void): void {
+    const bounds = element.getBoundingClientRect();
+    const destBounds = destination.getBoundingClientRect();
+    const deltaX = destBounds.left - bounds.left;
+    const deltaY = destBounds.top - bounds.top;
+
+    element.animate([
+      { zIndex: 1 },
+      { zIndex: 1, translate: `${deltaX}px ${deltaY}px` },
+    ], {
+      duration: 300,
+      easing: 'ease-in-out',
+    }).onfinish = finish;
+  }
+
+  function autoWin(): void {
+    const ref = props.game.lowestMovableCard();
+    if (!ref)
+      return;
+
+    const destination = props.game.canAutoMove(ref);
+    if (!destination)
+      return;
+
+    const element = findCardElement(ref)!;
+    const destElement = findCardElement(destination)!;
+
+    moveAnimation(element, destElement, async () => {
+      if (!props.game.canMove(ref) || !props.game.canMoveTo(ref, destination))
+        return;
+
+      await props.game.move(ref, destination);
+      autoWin();
+    });
+  }
+
   function onDoubleClick(ref: MovableCardRef): (ev: MouseEvent) => void {
     return (ev: MouseEvent) => {
       ev.stopPropagation();
@@ -68,24 +118,16 @@
       if (!destination)
         return;
 
-      const destSelector = `.drag-destination[data-zone="${destination.zone}"][data-cell-idx="${destination.cellIdx}"]`;
-      const destElement = document.querySelector(destSelector);
+      const destElement = findCardElement(destination)!;
 
-      const bounds = element.getBoundingClientRect();
-      const destBounds = destElement!.getBoundingClientRect();
-      const deltaX = destBounds.left - bounds.left;
-      const deltaY = destBounds.top - bounds.top;
+      moveAnimation(element, destElement, async () => {
+        if (!props.game.canMove(ref) || !props.game.canMoveTo(ref, destination))
+          return;
 
-      element.animate([
-        { zIndex: 1 },
-        { zIndex: 1, translate: `${deltaX}px ${deltaY}px` },
-      ], {
-        duration: 300,
-        easing: 'ease-in-out',
-      }).onfinish = () => {
-        if (props.game.canMove(ref) && props.game.canMoveTo(ref, destination))
-          props.game.move(ref, destination);
-      };
+        await props.game.move(ref, destination);
+        if (props.game.canAutoWin())
+          autoWin();
+      });
     };
   }
 
