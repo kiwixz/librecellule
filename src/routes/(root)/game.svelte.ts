@@ -9,7 +9,7 @@ import { ints } from '$lib/range';
 import { createTuple, generateTuple } from '$lib/tuple';
 import { BoardZone } from './types';
 
-function isTableauSequence(sequence: CardData[]): boolean {
+function isTableauSequence(sequence: readonly CardData[]): boolean {
   const color = (card: CardData) => card.suit === 1 || card.suit === 2;
 
   for (let i = 1; i < sequence.length; ++i) {
