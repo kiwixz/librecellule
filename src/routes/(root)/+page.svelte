@@ -24,6 +24,10 @@
   }
 </script>
 
+<svelte:head>
+  <title>LibreCellule</title>
+</svelte:head>
+
 <svelte:window {onkeydown} />
 
 <div class="min-h-dvh">

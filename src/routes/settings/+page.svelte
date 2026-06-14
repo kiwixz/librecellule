@@ -19,6 +19,10 @@
   });
 </script>
 
+<svelte:head>
+  <title>LibreCellule - Settings</title>
+</svelte:head>
+
 <div class="mx-auto pt-8 px-4 max-w-lg">
   <h1 class="flex gap-4 items-center text-2xl font-bold">
     <a href={resolve('/')} class="btn btn-circle" aria-label="Go back">
