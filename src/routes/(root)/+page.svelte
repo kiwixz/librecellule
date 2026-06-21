@@ -35,7 +35,8 @@
     <Board {game} />
   </main>
 
-  <div class="fixed bottom-0 p-2 w-full flex flex-wrap justify-between gap-2 items-end">
+  <div class="fixed bottom-0 p-2 w-full flex flex-wrap justify-between gap-2 items-end
+      pointer-events-none *:pointer-events-auto">
     <div class="dropdown dropdown-top">
       <div tabindex="0" role="button" class="btn btn-square" aria-label="Menu"><!-- safari cant focus buttons -->
         <Menu />
