@@ -31,7 +31,7 @@
 <svelte:window {onkeydown} />
 
 <div class="min-h-dvh">
-  <main class="mx-auto max-w-[120lvmin]">
+  <main class="mx-auto max-w-[110lvmin]">
     <Board {game} />
   </main>
 
