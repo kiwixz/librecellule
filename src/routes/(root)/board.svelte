@@ -73,7 +73,7 @@
     return document.querySelector(selector);
   }
 
-  function moveAnimation(element: Element, destination: Element, finish: (ev: AnimationPlaybackEvent) => void): void {
+  function moveAnimation(element: Element, destination: Element, finish: (ev: AnimationPlaybackEvent) => void, speed: number = 1): void {
     const bounds = element.getBoundingClientRect();
     const destBounds = destination.getBoundingClientRect();
     const deltaX = destBounds.left - bounds.left;
@@ -83,12 +83,12 @@
       { zIndex: 1 },
       { zIndex: 1, translate: `${deltaX}px ${deltaY}px` },
     ], {
-      duration: 300,
+      duration: 300 / speed,
       easing: 'ease-in-out',
     }).onfinish = finish;
   }
 
-  function autoWin(): void {
+  function autoWin(speed: number = 1): void {
     const ref = props.game.lowestMovableCard();
     if (!ref)
       return;
@@ -105,8 +105,8 @@
         return;
 
       await props.game.move(ref, destination);
-      autoWin();
-    });
+      autoWin(speed * 1.02);
+    }, speed);
   }
 
   function onDoubleClick(ref: MovableCardRef): (ev: MouseEvent) => void {
