@@ -50,12 +50,14 @@ class GameState {
   }
 
   async mutate<T>(callback: (state: GameData) => MaybePromise<T>): Promise<T> {
-    this.#history.push($state.snapshot(this.#data));
+    const previous = $state.snapshot(this.#data);
+    const r = await callback(this.#data);
+
+    this.#history.push(previous);
     if (this.#history.length > 10000)
       this.#history.shift();
     this.#undoHistory = [];
 
-    const r = await callback(this.#data);
     await this.#save();
     return r;
   }
