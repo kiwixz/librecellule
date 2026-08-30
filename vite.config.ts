@@ -19,7 +19,7 @@ function jsonMinifier(): Plugin {
       if (error)
         return;
 
-      Promise.all((await fs.readdir(config.build.outDir, { recursive: true }))
+      await Promise.all((await fs.readdir(config.build.outDir, { recursive: true }))
         .filter(file => /\.(?:json5?|webmanifest)$/.test(file))
         .map(async (file) => {
           const path = `${config.build.outDir}/${file}`;
