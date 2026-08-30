@@ -16,9 +16,11 @@
 
   function onkeydown(ev: KeyboardEvent): void {
     if ((ev.ctrlKey || ev.metaKey) && ev.key === 'z') {
+      ev.preventDefault();
       game.undo();
     }
     else if ((ev.ctrlKey || ev.metaKey) && (ev.key === 'y' || ev.key === 'Z')) {
+      ev.preventDefault();
       game.redo();
     }
   }
