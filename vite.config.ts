@@ -19,14 +19,15 @@ function jsonMinifier(): Plugin {
       if (error)
         return;
 
-      await Promise.all((await fs.readdir(config.build.outDir, { recursive: true }))
-        .filter(file => /\.(?:json5?|webmanifest)$/.test(file))
-        .map(async (file) => {
-          const path = `${config.build.outDir}/${file}`;
-          let json = await fs.readFile(path, 'utf8');
-          json = JSON.stringify(JSON5.parse(json));
-          await fs.writeFile(path, json);
-        }));
+      let files = await fs.readdir(config.build.outDir, { recursive: true }).catch(() => []);
+      files = files.filter(file => /\.(?:json5?|webmanifest)$/.test(file));
+
+      await Promise.all(files.map(async (file) => {
+        const path = `${config.build.outDir}/${file}`;
+        let json = await fs.readFile(path, 'utf8');
+        json = JSON.stringify(JSON5.parse(json));
+        await fs.writeFile(path, json);
+      }));
     },
   };
 }
