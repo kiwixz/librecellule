@@ -44,10 +44,12 @@ self.addEventListener('fetch', (ev) => {
         cache.put(ev.request, response.clone());
     }
     else if (!build.includes(url.pathname)) {
-      fetch(ev.request).then((response) => {
-        if (response.ok)
-          cache.put(ev.request, response);
-      });
+      fetch(ev.request)
+        .then((response) => {
+          if (response.ok)
+            cache.put(ev.request, response);
+        })
+        .catch(() => {});
     }
 
     return response;
