@@ -14,11 +14,6 @@
   let dragging = $state(false);
   let pointer: number;
 
-  function oncontextmenu(ev: Event): void {
-    if (dragging)
-      ev.preventDefault();
-  }
-
   function onpointerdown(ev: PointerEvent): void {
     if (ev.button !== 0 || dragging)
       return;
@@ -68,12 +63,12 @@
   {#if props.handle}
     <div class="grid *:row-1 *:col-1">
       {@render props.children()}
-      <div class="touch-none" {oncontextmenu} {onpointerdown}>
+      <div class="touch-none" {onpointerdown}>
         {@render props.handle()}
       </div>
     </div>
   {:else}
-    <div class="touch-none" {oncontextmenu} {onpointerdown}>
+    <div class="touch-none" {onpointerdown}>
       {@render props.children()}
     </div>
   {/if}
