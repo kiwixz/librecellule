@@ -29,8 +29,11 @@ self.addEventListener('fetch', (ev) => {
   if (ev.request.method !== 'GET')
     return;
 
+  const url = new URL(ev.request.url);
+  if (url.origin !== self.location.origin)
+    return;
+
   ev.respondWith((async () => {
-    const url = new URL(ev.request.url);
     const cache = await caches.open(version);
 
     let response = await cache.match(ev.request);
