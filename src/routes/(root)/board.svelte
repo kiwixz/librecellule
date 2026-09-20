@@ -1,16 +1,18 @@
 <script lang="ts">
-  import type { DepotCardRef, FoundationCardRef, MovableCardRef, MoveDestination, TableauCardRef } from './types';
+  import type { DepotCardRef, FoundationCardRef, MovableCardRef, MoveDestination, TableauCardRef } from '$lib/game/board';
+  import type GameStore from '$lib/game/store.svelte';
 
+  import { BoardZone } from '$lib/game/board';
+  import * as rules from '$lib/game/rules';
   import { calcCenter } from '$lib/geometry';
   import settings from '$lib/settings.svelte';
   import unreachable from '$lib/unreachable';
   import Card from './card.svelte';
   import CardSpace from './card_space.svelte';
   import Draggable from './draggable.svelte';
-  import Game from './game.svelte';
-  import { BoardZone } from './types';
 
-  const props: { game: Game } = $props();
+  const props: { game: GameStore } = $props();
+  const board = $derived(props.game.board);
 
   let dragging = false;
   let highlightedDestination: MoveDestination | null = $state(null);
@@ -44,7 +46,7 @@
         continue;
 
       const newDestination = parseDragDestination(destElement);
-      if (!props.game.canMoveTo(ref, newDestination))
+      if (!rules.canMoveTo(board, ref, newDestination))
         continue;
 
       const destBounds = destElement.getBoundingClientRect();
@@ -89,11 +91,11 @@
   }
 
   function autoWin(speed: number = 1): void {
-    const ref = props.game.lowestMovableCard();
+    const ref = rules.lowestMovableCard(board);
     if (!ref)
       return;
 
-    const destination = props.game.canAutoMove(ref);
+    const destination = rules.autoMoveDestination(board, ref);
     if (!destination)
       return;
 
@@ -101,7 +103,7 @@
     const destElement = findCardElement(destination)!;
 
     moveAnimation(element, destElement, async () => {
-      if (!props.game.canMove(ref) || !props.game.canMoveTo(ref, destination))
+      if (!rules.canMove(board, ref) || !rules.canMoveTo(board, ref, destination))
         return;
 
       await props.game.move(ref, destination);
@@ -115,18 +117,18 @@
 
       const element = ev.currentTarget as Element;
 
-      const destination = props.game.canAutoMove(ref);
+      const destination = rules.autoMoveDestination(board, ref);
       if (!destination)
         return;
 
       const destElement = findCardElement(destination)!;
 
       moveAnimation(element, destElement, async () => {
-        if (!props.game.canMove(ref) || !props.game.canMoveTo(ref, destination))
+        if (!rules.canMove(board, ref) || !rules.canMoveTo(board, ref, destination))
           return;
 
         await props.game.move(ref, destination);
-        if (settings.autoWin && props.game.canAutoWin())
+        if (settings.autoWin && rules.canAutoWin(board))
           autoWin();
       });
     };
@@ -134,7 +136,7 @@
 
   function onDragStart(ref: MovableCardRef): () => boolean {
     return () => {
-      if (dragging || !props.game.canMove(ref))
+      if (dragging || !rules.canMove(board, ref))
         return false;
 
       dragging = true;
@@ -173,7 +175,7 @@
 <div class="select-none">
   <div class="flex">
     <div class="piles">
-      {#each props.game.board.depots as card, cellIdx (cellIdx)}
+      {#each board.depots as card, cellIdx (cellIdx)}
         {@const ref: DepotCardRef = { zone: BoardZone.Depots, cellIdx }}
         <CardSpace>
           <div data-zone={ref.zone} data-cell-idx={cellIdx}
@@ -185,7 +187,7 @@
                   onstart={onDragStart(ref)}
                   onmove={onDragMove(ref)}
                   onend={onDragEnd(ref)}>
-                <Card data={card} />
+                <Card {card} />
               </Draggable>
             {/if}
           </div>
@@ -194,14 +196,14 @@
     </div>
 
     <div class="piles">
-      {#each props.game.board.foundations as card, cellIdx (cellIdx)}
+      {#each board.foundations as card, cellIdx (cellIdx)}
       {@const ref: FoundationCardRef = { zone: BoardZone.Foundations, cellIdx }}
         <CardSpace>
           <div data-zone={ref.zone} data-cell-idx={cellIdx}
             class="drag-destination"
             class:highlighted={highlightedDestination?.zone === ref.zone && highlightedDestination.cellIdx === cellIdx}>
             {#if card}
-              <Card data={card} />
+              <Card {card} />
             {/if}
           </div>
         </CardSpace>
@@ -210,7 +212,7 @@
   </div>
 
   <div class="piles">
-    {#each props.game.board.tableau as column, columnIdx (columnIdx)}
+    {#each board.tableau as column, columnIdx (columnIdx)}
       <div data-zone={BoardZone.Tableau} data-column-idx={columnIdx}
           class:drag-destination={column.length === 0}
           class:highlighted={column.length === 0 && highlightedDestination?.zone === BoardZone.Tableau && highlightedDestination.columnIdx === columnIdx}>
@@ -228,7 +230,7 @@
                     onmove={onDragMove(ref)}
                     onend={onDragEnd(ref)}>
                   {#snippet handle()}
-                    <Card data={column[cardIdx]} />
+                    <Card card={column[cardIdx]} />
                   {/snippet}
                   {#if cardIdx < column.length - 1}
                     <div class="mt-[round(40%,1px)]">

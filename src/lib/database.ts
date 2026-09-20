@@ -1,5 +1,6 @@
 import type { IDBPDatabase } from 'idb';
-import type { GameData, SettingsData } from '$lib/types';
+import type { Game } from '$lib/game/store.svelte';
+import type { Settings } from '$lib/settings.svelte';
 
 import { openDB } from 'idb';
 
@@ -8,28 +9,28 @@ function upgrade(database: IDBPDatabase, version: number): void {
     database.createObjectStore('kv');
 }
 
-class Impl {
+class Database {
   #database: IDBPDatabase | null = null;
   #openingPromise: Promise<void> | null = null;
 
-  async readSettings(): Promise<SettingsData | undefined> {
+  async readSettings(): Promise<Settings | undefined> {
     await this.#open();
     return await this.#database!.get('kv', 'settings');
   }
 
-  async writeSettings(state: SettingsData): Promise<void> {
+  async writeSettings(settings: Settings): Promise<void> {
     await this.#open();
-    await this.#database!.put('kv', state, 'settings');
+    await this.#database!.put('kv', settings, 'settings');
   }
 
-  async readGameData(): Promise<GameData | undefined> {
+  async readGame(): Promise<Game | undefined> {
     await this.#open();
     return await this.#database!.get('kv', 'game');
   }
 
-  async writeGameData(state: GameData): Promise<void> {
+  async writeGame(game: Game): Promise<void> {
     await this.#open();
-    await this.#database!.put('kv', state, 'game');
+    await this.#database!.put('kv', game, 'game');
   }
 
   async #open(): Promise<void> {
@@ -50,4 +51,4 @@ class Impl {
   }
 }
 
-export default new Impl();
+export default new Database();

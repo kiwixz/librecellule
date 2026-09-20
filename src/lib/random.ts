@@ -42,3 +42,12 @@ export class Generator { // xoshiro128+
 export function randomInt(choices: number): number {
   return Math.floor(Math.random() * choices);
 }
+
+export function shuffle<T>(array: readonly T[], generator: Generator): T[] {
+  const r = [...array];
+  for (let i = r.length - 1; i > 0; --i) {
+    const j = generator.nextInt(i + 1);
+    [r[i], r[j]] = [r[j], r[i]];
+  }
+  return r;
+}

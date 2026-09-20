@@ -1,11 +1,12 @@
-import type { MaybePromise } from './maybe_promise';
-import type { SettingsData } from './types';
-
 import { browser } from '$app/environment';
 import database from './database';
 
-class Impl {
-  #data: SettingsData = $state({
+export interface Settings {
+  autoWin: boolean;
+}
+
+class SettingsStore {
+  #data: Settings = $state({
     autoWin: true,
   });
 
@@ -20,12 +21,6 @@ class Impl {
     return this.#data.autoWin;
   }
 
-  async mutate<T>(callback: (settings: SettingsData) => MaybePromise<T>): Promise<T> {
-    const r = await callback(this.#data);
-    await this.#save();
-    return r;
-  }
-
   async load(): Promise<void> {
     if (this.#loadingPromise)
       return this.#loadingPromise;
@@ -38,7 +33,14 @@ class Impl {
         this.#loadingPromise = null;
       }
     })();
+
     return this.#loadingPromise;
+  }
+
+  async mutate<T>(callback: (settings: Settings) => T): Promise<T> {
+    const r = callback(this.#data);
+    await this.#save();
+    return r;
   }
 
   async #save(): Promise<void> {
@@ -46,4 +48,4 @@ class Impl {
   }
 }
 
-export default new Impl();
+export default new SettingsStore();

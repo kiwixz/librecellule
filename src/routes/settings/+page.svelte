@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { SettingsData } from '$lib/types';
+  import type { Settings } from '$lib/settings.svelte';
 
   import { version } from '$app/environment';
   import { resolve } from '$app/paths';
@@ -7,10 +7,10 @@
   import settings from '$lib/settings.svelte';
 
   const bindableSettings = new Proxy(settings, {
-    get(settings, key: keyof SettingsData) {
+    get(settings, key: keyof Settings) {
       return settings[key];
     },
-    set(settings, key: keyof SettingsData, value) {
+    set(settings, key: keyof Settings, value) {
       settings.mutate((data) => {
         data[key] = value;
       });

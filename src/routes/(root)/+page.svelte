@@ -7,10 +7,10 @@
   import Shuffle from '@lucide/svelte/icons/shuffle';
   import Settings from '@lucide/svelte/icons/settings';
   import Undo from '@lucide/svelte/icons/undo-2';
+  import GameStore from '$lib/game/store.svelte';
   import Board from './board.svelte';
-  import Game from './game.svelte';
 
-  const game = new Game();
+  const game = new GameStore();
   if (browser)
     game.load();
 

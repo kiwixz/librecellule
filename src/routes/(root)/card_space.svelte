@@ -9,7 +9,7 @@
 </script>
 
 <div class="grid *:row-1 *:col-1">
-  <Card data={null} />
+  <Card card={null} />
 
   {@render props.children()}
 </div>
