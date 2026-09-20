@@ -9,3 +9,10 @@ export function calcCenter(rect: DOMRect): Point {
     y: rect.y + rect.height / 2,
   };
 }
+
+export function intersects(a: DOMRect, b: DOMRect): boolean {
+  return a.left < b.right
+    && a.right > b.left
+    && a.top < b.bottom
+    && a.bottom > b.top;
+}

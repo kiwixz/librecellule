@@ -4,7 +4,7 @@
 
   import { BoardZone } from '$lib/game/board';
   import * as rules from '$lib/game/rules';
-  import { calcCenter } from '$lib/geometry';
+  import { calcCenter, intersects } from '$lib/geometry';
   import settings from '$lib/settings.svelte';
   import unreachable from '$lib/unreachable';
   import Card from './card.svelte';
@@ -36,20 +36,18 @@
 
     let destination;
     let distanceSqr = Infinity;
-    for (let corner = 0; corner < 4; ++corner) {
-      const elements = document.elementsFromPoint(
-        corner % 2 === 0 ? bounds.left : bounds.right,
-        corner < 2 ? bounds.top : bounds.bottom);
+    for (const destElement of document.querySelectorAll<HTMLElement>('.drag-destination')) {
+      if (element.contains(destElement))
+        continue;
 
-      const destElement = elements.find(el => el.classList.contains('drag-destination')) as HTMLElement | undefined;
-      if (!destElement)
+      const destBounds = destElement.getBoundingClientRect();
+      if (!intersects(bounds, destBounds))
         continue;
 
       const newDestination = parseDragDestination(destElement);
       if (!rules.canMoveTo(board, ref, newDestination))
         continue;
 
-      const destBounds = destElement.getBoundingClientRect();
       const destCenter = calcCenter(destBounds);
       const newDistanceSqr = (destCenter.x - center.x) ** 2 + (destCenter.y - center.y) ** 2;
       if (newDistanceSqr < distanceSqr) {
