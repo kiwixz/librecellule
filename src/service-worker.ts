@@ -41,15 +41,15 @@ self.addEventListener('fetch', (ev) => {
     if (!response) {
       response = await fetch(ev.request);
       if (response.ok)
-        cache.put(ev.request, response.clone());
+        ev.waitUntil(cache.put(ev.request, response.clone()).catch(() => {}));
     }
     else if (!build.includes(url.pathname)) {
-      fetch(ev.request)
+      ev.waitUntil(fetch(ev.request)
         .then((response) => {
           if (response.ok)
-            cache.put(ev.request, response);
+            return cache.put(ev.request, response);
         })
-        .catch(() => {});
+        .catch(() => {}));
     }
 
     return response;
