@@ -5,6 +5,8 @@ import { build, files, prerendered, version } from '$service-worker';
 
 const self = globalThis.self as unknown as ServiceWorkerGlobalScope;
 
+const fallback = '/404.html';
+
 self.addEventListener('install', (ev) => {
   ev.waitUntil((async () => {
     const cache = await caches.open(version);
@@ -13,6 +15,11 @@ self.addEventListener('install', (ev) => {
       ...build,
       ...files,
     ]);
+
+    const response = await fetch(fallback);
+    if (!response.ok)
+      throw new Error(`${fallback}: ${response.status}`);
+    await cache.put(fallback, new Response(await response.blob()));
   })());
 });
 
@@ -36,22 +43,13 @@ self.addEventListener('fetch', (ev) => {
   ev.respondWith((async () => {
     const cache = await caches.open(version);
 
-    let response = await cache.match(ev.request);
+    const response = await cache.match(ev.request);
+    if (response)
+      return response;
 
-    if (!response) {
-      response = await fetch(ev.request);
-      if (response.ok)
-        ev.waitUntil(cache.put(ev.request, response.clone()).catch(() => {}));
-    }
-    else if (!build.includes(url.pathname)) {
-      ev.waitUntil(fetch(ev.request)
-        .then((response) => {
-          if (response.ok)
-            return cache.put(ev.request, response);
-        })
-        .catch(() => {}));
-    }
+    if (ev.request.mode === 'navigate')
+      return (await cache.match(fallback))!;
 
-    return response;
+    return fetch(ev.request);
   })());
 });

@@ -18,7 +18,9 @@ export default {
     warningFilter: warning => warning.code !== 'a11y_no_static_element_interactions',
   },
   kit: {
-    adapter: adapter(),
+    adapter: adapter({
+      fallback: '404.html',
+    }),
     inlineStyleThreshold: Infinity,
     version: {
       name: version(),
