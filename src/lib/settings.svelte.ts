@@ -22,10 +22,7 @@ class SettingsStore {
   }
 
   async load(): Promise<void> {
-    if (this.#loadingPromise)
-      return this.#loadingPromise;
-
-    this.#loadingPromise = (async () => {
+    this.#loadingPromise ??= (async () => {
       try {
         this.#data = { ...this.#data, ...await database.readSettings() };
       }

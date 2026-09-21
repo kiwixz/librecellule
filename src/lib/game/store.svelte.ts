@@ -1,6 +1,7 @@
 import type { DeepReadonly } from '$lib/deep_readonly';
 import type { Board, MovableCardRef, MoveDestination } from './board';
 
+import { browser } from '$app/environment';
 import database from '$lib/database';
 import { Generator } from '$lib/random';
 import { emptyBoard } from './board';
@@ -11,10 +12,17 @@ export interface Game {
   board: Board;
 }
 
-export default class GameStore {
+export class GameStore {
   #data: Game = $state({ seed: '', board: emptyBoard() });
   #history: Game[] = $state([]);
   #undoHistory: Game[] = $state([]);
+
+  #loadingPromise: Promise<void> | null = null;
+
+  constructor() {
+    if (browser)
+      this.load();
+  }
 
   get seed(): string {
     return this.#data.seed;
@@ -32,14 +40,23 @@ export default class GameStore {
     return this.#undoHistory.length > 0;
   }
 
-  async load(): Promise<void> {
-    const data = await database.readGame();
-    if (data) {
-      this.#data = data;
-    }
-    else {
-      await this.reset();
-    }
+  load(): Promise<void> {
+    this.#loadingPromise ??= (async () => {
+      try {
+        const data = await database.readGame();
+        if (data) {
+          this.#data = data;
+        }
+        else {
+          await this.reset();
+        }
+      }
+      finally {
+        this.#loadingPromise = null;
+      }
+    })();
+
+    return this.#loadingPromise;
   }
 
   async reset(seed?: string): Promise<void> {
@@ -93,3 +110,5 @@ export default class GameStore {
     await database.writeGame($state.snapshot(this.#data));
   }
 }
+
+export default new GameStore();

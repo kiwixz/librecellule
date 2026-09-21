@@ -36,10 +36,8 @@ class Database {
   async #open(): Promise<void> {
     if (this.#database)
       return;
-    if (this.#openingPromise)
-      return this.#openingPromise;
 
-    this.#openingPromise = (async () => {
+    this.#openingPromise ??= (async () => {
       try {
         this.#database = await openDB('data', 1, { upgrade });
       }
@@ -47,6 +45,7 @@ class Database {
         this.#openingPromise = null;
       }
     })();
+
     return this.#openingPromise;
   }
 }

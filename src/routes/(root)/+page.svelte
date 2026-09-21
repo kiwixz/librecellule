@@ -1,18 +1,32 @@
 <script lang="ts">
-  import { browser } from '$app/environment';
   import { resolve } from '$app/paths';
   import Menu from '@lucide/svelte/icons/menu';
   import Redo from '@lucide/svelte/icons/redo-2';
   import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
+  import Share2 from '@lucide/svelte/icons/share-2';
   import Shuffle from '@lucide/svelte/icons/shuffle';
   import Settings from '@lucide/svelte/icons/settings';
   import Undo from '@lucide/svelte/icons/undo-2';
-  import GameStore from '$lib/game/store.svelte';
+  import game from '$lib/game/store.svelte';
   import Board from './board.svelte';
 
-  const game = new GameStore();
-  if (browser)
-    game.load();
+  let linkCopied = $state(false);
+  let toastTimer: ReturnType<typeof setTimeout>;
+
+  async function share(): Promise<void> {
+    const url = new URL(resolve('/share/[seed=seed]', { seed: game.seed }), location.href).href;
+
+    if (navigator.share) {
+      const shared = await navigator.share({ title: 'LibreCellule', url }).then(() => true, () => false);
+      if (shared)
+        return;
+    }
+
+    await navigator.clipboard.writeText(url);
+    linkCopied = true;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => linkCopied = false, 2000);
+  }
 
   function onkeydown(ev: KeyboardEvent): void {
     if ((ev.ctrlKey || ev.metaKey) && ev.key === 'z') {
@@ -51,6 +65,11 @@
           </a>
         </li>
         <li>
+          <button onclick={share}>
+            <Share2 /> Share
+          </button>
+        </li>
+        <li>
           <button onclick={() => game.reset()}>
             <Shuffle /> New Deal
           </button>
@@ -74,4 +93,10 @@
       </button>
     </div>
   </div>
+
+  {#if linkCopied}
+    <div class="toast toast-top toast-center">
+      <div class="alert" role="status">Link copied</div>
+    </div>
+  {/if}
 </div>
