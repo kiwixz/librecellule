@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { browser } from '$app/environment';
   import { resolve } from '$app/paths';
   import Menu from '@lucide/svelte/icons/menu';
   import Redo from '@lucide/svelte/icons/redo-2';
@@ -7,12 +6,8 @@
   import Shuffle from '@lucide/svelte/icons/shuffle';
   import Settings from '@lucide/svelte/icons/settings';
   import Undo from '@lucide/svelte/icons/undo-2';
-  import GameStore from '$lib/game/store.svelte';
+  import game from '$lib/game/store.svelte';
   import Board from './board.svelte';
-
-  const game = new GameStore();
-  if (browser)
-    game.load();
 
   function onkeydown(ev: KeyboardEvent): void {
     if ((ev.ctrlKey || ev.metaKey) && ev.key === 'z') {

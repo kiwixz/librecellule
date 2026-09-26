@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { DepotCardRef, FoundationCardRef, MovableCardRef, MoveDestination, TableauCardRef } from '$lib/game/board';
-  import type GameStore from '$lib/game/store.svelte';
+  import type { GameStore } from '$lib/game/store.svelte';
 
   import { BoardZone } from '$lib/game/board';
   import * as rules from '$lib/game/rules';

@@ -1,6 +1,7 @@
 import type { DeepReadonly } from '$lib/deep_readonly';
 import type { Board, MovableCardRef, MoveDestination } from './board';
 
+import { browser } from '$app/environment';
 import database from '$lib/database';
 import { Generator } from '$lib/random';
 import { emptyBoard } from './board';
@@ -11,10 +12,18 @@ export interface Game {
   board: Board;
 }
 
-export default class GameStore {
+function redeal(game: Game, seed?: string): void {
+  const generator = new Generator(seed);
+  game.seed = generator.state;
+  game.board = deal(generator);
+}
+
+export class GameStore {
   #data: Game = $state({ seed: '', board: emptyBoard() });
   #history: Game[] = $state([]);
   #undoHistory: Game[] = $state([]);
+
+  #loaded: Promise<void> | null = browser ? this.#load().catch(console.error) : null;
 
   get seed(): string {
     return this.#data.seed;
@@ -32,22 +41,9 @@ export default class GameStore {
     return this.#undoHistory.length > 0;
   }
 
-  async load(): Promise<void> {
-    const data = await database.readGame();
-    if (data) {
-      this.#data = data;
-    }
-    else {
-      await this.reset();
-    }
-  }
-
   async reset(seed?: string): Promise<void> {
-    const generator = new Generator(seed);
-
     await this.#mutate((game) => {
-      game.seed = generator.state;
-      game.board = deal(generator);
+      redeal(game, seed);
     });
   }
 
@@ -58,6 +54,8 @@ export default class GameStore {
   }
 
   async undo(): Promise<void> {
+    await this.#loaded;
+
     const data = this.#history.pop();
     if (!data)
       return;
@@ -68,6 +66,8 @@ export default class GameStore {
   }
 
   async redo(): Promise<void> {
+    await this.#loaded;
+
     const data = this.#undoHistory.pop();
     if (!data)
       return;
@@ -78,6 +78,8 @@ export default class GameStore {
   }
 
   async #mutate(callback: (game: Game) => void): Promise<void> {
+    await this.#loaded;
+
     const previous = $state.snapshot(this.#data);
     callback(this.#data);
 
@@ -89,7 +91,20 @@ export default class GameStore {
     await this.#save();
   }
 
+  async #load(): Promise<void> {
+    const data = await database.readGame();
+    if (data) {
+      this.#data = data;
+    }
+    else {
+      redeal(this.#data);
+      await this.#save();
+    }
+  }
+
   async #save(): Promise<void> {
     await database.writeGame($state.snapshot(this.#data));
   }
 }
+
+export default new GameStore();

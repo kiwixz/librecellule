@@ -10,37 +10,21 @@ class SettingsStore {
     autoWin: true,
   });
 
-  #loadingPromise: Promise<void> | null = null;
-
-  constructor() {
-    if (browser)
-      this.load();
-  }
+  #loaded: Promise<void> | null = browser ? this.#load().catch(console.error) : null;
 
   get autoWin(): boolean {
     return this.#data.autoWin;
   }
 
-  async load(): Promise<void> {
-    if (this.#loadingPromise)
-      return this.#loadingPromise;
-
-    this.#loadingPromise = (async () => {
-      try {
-        this.#data = { ...this.#data, ...await database.readSettings() };
-      }
-      finally {
-        this.#loadingPromise = null;
-      }
-    })();
-
-    return this.#loadingPromise;
-  }
-
   async mutate<T>(callback: (settings: Settings) => T): Promise<T> {
+    await this.#loaded;
     const r = callback(this.#data);
     await this.#save();
     return r;
+  }
+
+  async #load(): Promise<void> {
+    this.#data = { ...this.#data, ...await database.readSettings() };
   }
 
   async #save(): Promise<void> {
