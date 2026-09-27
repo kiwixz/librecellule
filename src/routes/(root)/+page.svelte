@@ -3,11 +3,15 @@
   import Menu from '@lucide/svelte/icons/menu';
   import Redo from '@lucide/svelte/icons/redo-2';
   import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
+  import Share2 from '@lucide/svelte/icons/share-2';
   import Shuffle from '@lucide/svelte/icons/shuffle';
   import Settings from '@lucide/svelte/icons/settings';
   import Undo from '@lucide/svelte/icons/undo-2';
   import game from '$lib/game/store.svelte';
   import Board from './board.svelte';
+  import Toast from './toast.svelte';
+
+  let toast: Toast;
 
   function onkeydown(ev: KeyboardEvent): void {
     if ((ev.ctrlKey || ev.metaKey) && ev.key === 'z') {
@@ -17,6 +21,31 @@
     else if ((ev.ctrlKey || ev.metaKey) && (ev.key === 'y' || ev.key === 'Z')) {
       ev.preventDefault();
       game.redo();
+    }
+  }
+
+  async function share(): Promise<void> {
+    const url = new URL(resolve('/share/[seed=seed]', { seed: game.seed }), location.href).href;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'LibreCellule', url });
+        return;
+      }
+      catch (ex) {
+        if (ex instanceof DOMException && ex.name === 'AbortError')
+          return;
+        console.error(ex);
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.show('Link copied');
+    }
+    catch (ex) {
+      console.error(ex);
+      toast.show('Could not share link');
     }
   }
 </script>
@@ -35,7 +64,7 @@
   <div class="fixed bottom-0 p-2 w-full flex flex-wrap justify-between gap-2 items-end
       pointer-events-none *:pointer-events-auto">
     <div class="dropdown dropdown-top">
-      <div tabindex="0" role="button" class="btn btn-square" aria-label="Menu"><!-- safari cant focus buttons -->
+      <div tabindex="0" class="btn btn-square" role="button" aria-label="Menu"><!-- safari cant focus buttons -->
         <Menu />
       </div>
 
@@ -44,6 +73,11 @@
           <a href={resolve('/settings')}>
             <Settings /> Settings
           </a>
+        </li>
+        <li>
+          <button onclick={share}>
+            <Share2 /> Share
+          </button>
         </li>
         <li>
           <button onclick={() => game.reset()}>
@@ -69,4 +103,6 @@
       </button>
     </div>
   </div>
+
+  <Toast bind:this={toast} />
 </div>
