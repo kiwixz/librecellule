@@ -18,6 +18,10 @@ export function isTableauSequence(sequence: DeepReadonly<Card[]>): boolean {
   return true;
 }
 
+export function isWon(board: DeepReadonly<Board>): boolean {
+  return board.foundations.every(card => card?.rank === 12);
+}
+
 export function lowestMovableCard(board: DeepReadonly<Board>): MovableCardRef | null {
   let r: MovableCardRef | null = null;
   let lowest: Readonly<Card> | null = null;

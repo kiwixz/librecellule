@@ -11,7 +11,10 @@
   import CardSpace from './card_space.svelte';
   import Draggable from './draggable.svelte';
 
-  const props: { game: GameStore } = $props();
+  const props: {
+    game: GameStore;
+    onWin: () => void;
+  } = $props();
   const board = $derived(props.game.board);
 
   let dragging = false;
@@ -88,6 +91,17 @@
     }).onfinish = finish;
   }
 
+  async function tryMove(ref: MovableCardRef, destination: MoveDestination): Promise<boolean> {
+    if (!rules.canMove(board, ref) || !rules.canMoveTo(board, ref, destination))
+      return false;
+
+    await props.game.move(ref, destination);
+    if (rules.isWon(board))
+      props.onWin();
+
+    return true;
+  }
+
   function autoWin(speed: number = 1): void {
     const ref = rules.lowestMovableCard(board);
     if (!ref)
@@ -101,10 +115,9 @@
     const destElement = findCardElement(destination)!;
 
     moveAnimation(element, destElement, async () => {
-      if (!rules.canMove(board, ref) || !rules.canMoveTo(board, ref, destination))
+      if (!await tryMove(ref, destination))
         return;
 
-      await props.game.move(ref, destination);
       autoWin(speed * 1.02);
     }, speed);
   }
@@ -122,10 +135,9 @@
       const destElement = findCardElement(destination)!;
 
       moveAnimation(element, destElement, async () => {
-        if (!rules.canMove(board, ref) || !rules.canMoveTo(board, ref, destination))
+        if (!await tryMove(ref, destination))
           return;
 
-        await props.game.move(ref, destination);
         if (settings.autoWin && rules.canAutoWin(board))
           autoWin();
       });
@@ -165,7 +177,7 @@
       if (!destination)
         return;
 
-      props.game.move(ref, destination);
+      tryMove(ref, destination);
     };
   }
 </script>
@@ -182,9 +194,9 @@
             ondblclick={onDoubleClick(ref)}>
             {#if card}
               <Draggable
-                  onstart={onDragStart(ref)}
-                  onmove={onDragMove(ref)}
-                  onend={onDragEnd(ref)}>
+                  onStart={onDragStart(ref)}
+                  onMove={onDragMove(ref)}
+                  onEnd={onDragEnd(ref)}>
                 <Card {card} />
               </Draggable>
             {/if}
@@ -224,9 +236,9 @@
                   class:highlighted={cardIdx === column.length - 1 && highlightedDestination?.zone === ref.zone && highlightedDestination.columnIdx === columnIdx}
                   ondblclick={onDoubleClick(ref)}>
                 <Draggable
-                    onstart={onDragStart(ref)}
-                    onmove={onDragMove(ref)}
-                    onend={onDragEnd(ref)}>
+                    onStart={onDragStart(ref)}
+                    onMove={onDragMove(ref)}
+                    onEnd={onDragEnd(ref)}>
                   {#snippet handle()}
                     <Card card={column[cardIdx]} />
                   {/snippet}

@@ -5,9 +5,9 @@
   const props: {
     children: Snippet;
     handle?: Snippet;
-    onstart?: (event: PointerEvent) => boolean;
-    onmove?: (event: PointerEvent) => void;
-    onend?: (event: PointerEvent, cancelled: boolean) => void;
+    onStart?: (event: PointerEvent) => boolean;
+    onMove?: (event: PointerEvent) => void;
+    onEnd?: (event: PointerEvent, cancelled: boolean) => void;
   } = $props();
 
   let self: HTMLElement;
@@ -18,7 +18,7 @@
     if (ev.button !== 0 || dragging)
       return;
 
-    if (props.onstart?.(ev) === false)
+    if (props.onStart?.(ev) === false)
       return;
 
     dragging = true;
@@ -30,14 +30,14 @@
     const controller = new AbortController();
     const listenerOptions = { signal: controller.signal };
 
-    const onend = (cancelled: boolean) => {
+    const onEnd = (cancelled: boolean) => {
       return (ev: PointerEvent) => {
         if (ev.pointerId !== pointer)
           return;
 
         controller.abort();
 
-        props.onend?.(ev, cancelled);
+        props.onEnd?.(ev, cancelled);
 
         self.style.translate = '';
         dragging = false;
@@ -49,11 +49,11 @@
         return;
 
       self.style.translate = `${ev.x - startX}px ${ev.y - startY}px`;
-      props.onmove?.(ev);
+      props.onMove?.(ev);
     }, listenerOptions);
 
-    on(self, 'pointerup', onend(false), listenerOptions);
-    on(self, 'pointercancel', onend(true), listenerOptions);
+    on(self, 'pointerup', onEnd(false), listenerOptions);
+    on(self, 'pointercancel', onEnd(true), listenerOptions);
   }
 </script>
 

@@ -7,11 +7,15 @@
   import Shuffle from '@lucide/svelte/icons/shuffle';
   import Settings from '@lucide/svelte/icons/settings';
   import Undo from '@lucide/svelte/icons/undo-2';
+  import confetti from 'canvas-confetti';
   import game from '$lib/game/store.svelte';
   import Board from './board.svelte';
   import Toast from './toast.svelte';
 
+  let winDialog: HTMLDialogElement;
   let toast: Toast;
+
+  let confettiTimer: ReturnType<typeof setTimeout>;
 
   function onkeydown(ev: KeyboardEvent): void {
     if ((ev.ctrlKey || ev.metaKey) && ev.key === 'z') {
@@ -22,6 +26,27 @@
       ev.preventDefault();
       game.redo();
     }
+  }
+
+  function onWin(): void {
+    winDialog.showModal();
+
+    let delay = 1000 / 30;
+    const burst = () => {
+      confetti({
+        particleCount: 7,
+        spread: 90,
+        ticks: 400,
+        disableForReducedMotion: true,
+      });
+
+      ++delay;
+      if (delay > 150)
+        delay *= 1.2;
+      if (delay <= 600)
+        confettiTimer = setTimeout(burst, delay);
+    };
+    burst();
   }
 
   async function share(): Promise<void> {
@@ -58,7 +83,7 @@
 
 <div class="min-h-dvh">
   <main class="mx-auto max-w-[110lvmin]">
-    <Board {game} />
+    <Board {game} {onWin} />
   </main>
 
   <div class="fixed bottom-0 p-2 w-full flex flex-wrap justify-between gap-2 items-end
@@ -103,6 +128,20 @@
       </button>
     </div>
   </div>
+
+  <dialog bind:this={winDialog} class="modal bg-transparent" onclose={() => clearTimeout(confettiTimer)}>
+    <div class="modal-box w-auto px-12 py-8 bg-base-300 text-center">
+      <p class="text-5xl font-semibold">You won!</p>
+
+      <form method="dialog" class="modal-action mt-6 justify-center">
+        <button class="btn" onclick={() => game.reset()}>Play Again</button>
+      </form>
+    </div>
+
+    <form method="dialog" class="modal-backdrop">
+      <button>Close</button>
+    </form>
+  </dialog>
 
   <Toast bind:this={toast} />
 </div>
