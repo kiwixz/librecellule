@@ -8,7 +8,7 @@
   const height = 88;
 
   const props: {
-    card: Card | null;
+    card: Readonly<Card> | null;
   } = $props();
 
   const rankStr = $derived([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 'jack', 'queen', 'king'][props.card?.rank ?? -1]);

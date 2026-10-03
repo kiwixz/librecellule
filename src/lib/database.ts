@@ -1,4 +1,5 @@
 import type { IDBPDatabase } from 'idb';
+import type { DeepReadonly } from '$lib/deep_readonly';
 import type { Game } from '$lib/game/store.svelte';
 import type { Settings } from '$lib/settings.svelte';
 
@@ -17,7 +18,7 @@ class Database {
     return await (await this.#database)!.get('kv', 'settings');
   }
 
-  async writeSettings(settings: Settings): Promise<void> {
+  async writeSettings(settings: DeepReadonly<Settings>): Promise<void> {
     await (await this.#database)!.put('kv', settings, 'settings');
   }
 
@@ -25,7 +26,7 @@ class Database {
     return await (await this.#database)!.get('kv', 'game');
   }
 
-  async writeGame(game: Game): Promise<void> {
+  async writeGame(game: DeepReadonly<Game>): Promise<void> {
     await (await this.#database)!.put('kv', game, 'game');
   }
 

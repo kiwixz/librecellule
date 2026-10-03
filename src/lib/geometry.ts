@@ -3,14 +3,14 @@ interface Point {
   y: number;
 }
 
-export function calcCenter(rect: DOMRect): Point {
+export function calcCenter(rect: DOMRectReadOnly): Point {
   return {
     x: rect.x + rect.width / 2,
     y: rect.y + rect.height / 2,
   };
 }
 
-export function intersects(a: DOMRect, b: DOMRect): boolean {
+export function intersects(a: DOMRectReadOnly, b: DOMRectReadOnly): boolean {
   return a.left < b.right
     && a.right > b.left
     && a.top < b.bottom

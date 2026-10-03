@@ -7,8 +7,8 @@ import { ints } from '$lib/range';
 import { createTuple, generateTuple } from '$lib/tuple';
 import { BoardZone, cardAt } from './board';
 
-export function isTableauSequence(sequence: readonly Card[]): boolean {
-  const color = (card: Card) => card.suit === 1 || card.suit === 2;
+export function isTableauSequence(sequence: DeepReadonly<Card[]>): boolean {
+  const color = (card: Readonly<Card>) => card.suit === 1 || card.suit === 2;
 
   for (let i = 1; i < sequence.length; ++i) {
     if (color(sequence[i]) === color(sequence[i - 1]) || sequence[i].rank !== sequence[i - 1].rank - 1)
@@ -20,7 +20,7 @@ export function isTableauSequence(sequence: readonly Card[]): boolean {
 
 export function lowestMovableCard(board: DeepReadonly<Board>): MovableCardRef | null {
   let r: MovableCardRef | null = null;
-  let lowest: Card | null = null;
+  let lowest: Readonly<Card> | null = null;
 
   for (const [cellIdx, card] of board.depots.entries()) {
     if (!card)
