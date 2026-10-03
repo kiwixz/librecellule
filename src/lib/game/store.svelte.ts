@@ -2,7 +2,7 @@ import type { DeepReadonly } from '$lib/deep_readonly';
 import type { Board, MovableCardRef, MoveDestination } from './board';
 
 import { browser } from '$app/environment';
-import database from '$lib/database';
+import database, { maxGameHistoryLength } from '$lib/database';
 import { Generator } from '$lib/random';
 import { emptyBoard } from './board';
 import { applyMove, deal } from './rules';
@@ -20,8 +20,10 @@ function redeal(game: Game, seed?: string): void {
 
 export class GameStore {
   #data: Game = $state({ seed: '', board: emptyBoard() });
-  #history: Game[] = $state([]);
-  #undoHistory: Game[] = $state([]);
+  #history: Game[] = [];
+  #historyLength = $state(0);
+  #historyHead = -1;
+  #historyRewind = $state(0);
 
   #loaded: Promise<void> | null = browser ? this.#load().catch(console.error) : null;
 
@@ -34,11 +36,11 @@ export class GameStore {
   }
 
   canUndo(): boolean {
-    return this.#history.length > 0;
+    return this.#historyRewind < this.#historyLength - 1;
   }
 
   canRedo(): boolean {
-    return this.#undoHistory.length > 0;
+    return this.#historyRewind > 0;
   }
 
   async reset(seed?: string): Promise<void> {
@@ -56,54 +58,59 @@ export class GameStore {
   async undo(): Promise<void> {
     await this.#loaded;
 
-    const data = this.#history.pop();
-    if (!data)
-      return;
-
-    this.#undoHistory.push($state.snapshot(this.#data));
-    this.#data = data;
-    await this.#save();
+    if (this.canUndo())
+      await this.#restore(this.#historyRewind + 1);
   }
 
   async redo(): Promise<void> {
     await this.#loaded;
 
-    const data = this.#undoHistory.pop();
-    if (!data)
-      return;
-
-    this.#history.push($state.snapshot(this.#data));
-    this.#data = data;
-    await this.#save();
+    if (this.canRedo())
+      await this.#restore(this.#historyRewind - 1);
   }
 
   async #mutate(callback: (game: Game) => void): Promise<void> {
     await this.#loaded;
 
-    const previous = $state.snapshot(this.#data);
     callback(this.#data);
-
-    this.#history.push(previous);
-    if (this.#history.length > 10000)
-      this.#history.shift();
-    this.#undoHistory = [];
-
-    await this.#save();
+    await this.#push();
   }
 
   async #load(): Promise<void> {
-    const data = await database.readGame();
-    if (data) {
-      this.#data = data;
-    }
-    else {
+    const history = await database.readGameHistory();
+    if (!history) {
       redeal(this.#data);
-      await this.#save();
+      await this.#push();
+      return;
     }
+
+    this.#history = history.games;
+    this.#historyLength = history.games.length;
+    this.#historyHead = history.head;
+    this.#historyRewind = history.rewind;
+    this.#data = this.#history.at(-1 - this.#historyRewind)!;
   }
 
-  async #save(): Promise<void> {
-    await database.writeGame($state.snapshot(this.#data));
+  async #push(): Promise<void> {
+    const game = $state.snapshot(this.#data);
+
+    this.#history.splice(this.#history.length - this.#historyRewind);
+    this.#history.push(game);
+    if (this.#history.length > maxGameHistoryLength)
+      this.#history.shift();
+
+    this.#historyLength = this.#history.length;
+    this.#historyHead += 1 - this.#historyRewind;
+    this.#historyRewind = 0;
+
+    await database.writeGameHistory(this.#historyHead, game);
+  }
+
+  async #restore(rewind: number): Promise<void> {
+    this.#historyRewind = rewind;
+    this.#data = this.#history.at(-1 - rewind)!;
+
+    await database.writeGameHistoryRewind(rewind);
   }
 }
 
