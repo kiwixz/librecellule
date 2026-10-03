@@ -1,7 +1,7 @@
 import { expect, suite, test } from 'vitest';
 import { Generator } from '$lib/random';
 
-suite('Generator', () => {
+suite('generator', () => {
   test('hardcoded seeds still work', () => {
     const nextState = (seed: string) => {
       const gen = new Generator(seed);
