@@ -57,6 +57,9 @@ export function maxSupermove(board: DeepReadonly<Board>, toEmptyColumn: boolean)
 }
 
 export function canMove(board: DeepReadonly<Board>, ref: MovableCardRef): boolean {
+  if (!cardAt(board, ref))
+    return false;
+
   switch (ref.zone) {
     case BoardZone.Depots:
       return true;
@@ -98,7 +101,9 @@ export function canMoveTo(board: DeepReadonly<Board>, ref: MovableCardRef, desti
 }
 
 export function autoMoveDestination(board: DeepReadonly<Board>, ref: MovableCardRef): AutoMoveDestination | null {
-  const card = cardAt(board, ref)!;
+  const card = cardAt(board, ref);
+  if (!card)
+    return null;
 
   if (card.rank === 0) {
     const destination: AutoMoveDestination = { zone: BoardZone.Foundations, cellIdx: card.suit };
