@@ -1,5 +1,5 @@
 import { expect, suite, test } from 'vitest';
-import { Generator } from '$lib/random';
+import { Generator, nextSeed } from '$lib/random';
 
 suite('generator', () => {
   test('hardcoded seeds still work', () => {
@@ -16,6 +16,11 @@ suite('generator', () => {
     expect(nextState('aceaceaceaceaceaceaceace')).toBe('d786d18688888888ff1ff06260f953db');
     expect(nextState('aceaceaceaceaceaceaceaceaceace')).toBe('eaceac4688888888ff1ff06223175231');
     expect(nextState('aceaceaceaceaceaceaceaceaceaceac')).toBe('eaceacea88888888ff1ff06223123231');
+  });
+
+  test('hardcoded seeds still lead to the same next seed', () => {
+    expect(nextSeed('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')).toBe('839333a9ec25f84e309182dd5b0f71d5');
+    expect(nextSeed('839333a9ec25f84e309182dd5b0f71d5')).toBe('31692fe6872fabae038ad9ba9fc373d0');
   });
 
   test('same seeds should produce same sequences', () => {

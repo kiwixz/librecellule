@@ -8,12 +8,16 @@
   import Settings from '@lucide/svelte/icons/settings';
   import Undo from '@lucide/svelte/icons/undo-2';
   import confetti from 'canvas-confetti';
+  import { isWon } from '$lib/game/rules';
   import game from '$lib/game/store.svelte';
+  import { nextSeed } from '$lib/random';
   import Board from './board.svelte';
   import Toast from './toast.svelte';
 
   let winDialog: HTMLDialogElement;
   let toast: Toast;
+
+  const won = $derived(isWon(game.board));
 
   let confettiTimer: ReturnType<typeof setTimeout>;
 
@@ -105,8 +109,8 @@
           </button>
         </li>
         <li>
-          <button onclick={() => game.reset()}>
-            <Shuffle /> New Deal
+          <button onclick={() => game.reset(won ? nextSeed(game.seed) : undefined)}>
+            <Shuffle /> {won ? 'Next Deal' : 'New Deal'}
           </button>
         </li>
         <li>
@@ -134,7 +138,7 @@
       <p class="text-5xl font-semibold">You won!</p>
 
       <form method="dialog" class="modal-action mt-6 justify-center">
-        <button class="btn" onclick={() => game.reset()}>Play Again</button>
+        <button class="btn" onclick={() => game.reset(nextSeed(game.seed))}>Next Deal</button>
       </form>
     </div>
 

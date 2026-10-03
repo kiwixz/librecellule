@@ -37,6 +37,25 @@ export class Generator { // xoshiro128+
 
     return result;
   }
+
+  jump(): void {
+    const state = new Uint32Array(4);
+    for (const word of [0x8764000b, 0xf542d2d3, 0x6fa035c3, 0x77f2db5b]) {
+      for (let bit = 0; bit < 32; ++bit) {
+        if (word & 1 << bit)
+          this.#state.forEach((int, i) => state[i] ^= int);
+        this.nextInt32();
+      }
+    }
+
+    this.#state = state;
+  }
+}
+
+export function nextSeed(seed: string): string {
+  const generator = new Generator(seed);
+  generator.jump();
+  return generator.state;
 }
 
 export function randomInt(choices: number): number {
