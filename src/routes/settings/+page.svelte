@@ -33,7 +33,11 @@
 
   <main class="pt-8 flex flex-col flex-wrap gap-6">
     <label class="label field">
-      Automatically finish to foundations
+      Optimized layout
+      <input type="checkbox" class="toggle" bind:checked={bindableSettings.optimizedLayout} />
+    </label>
+    <label class="label field">
+      Auto finish to foundations
       <input type="checkbox" class="toggle" bind:checked={bindableSettings.autoWin} />
     </label>
   </main>
