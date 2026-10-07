@@ -1,3 +1,15 @@
+<script module lang="ts">
+  import { browser } from '$app/environment';
+
+  const policy = browser
+    ? window.trustedTypes?.createPolicy('librecellule', { createHTML: html => html })
+    : null;
+
+  function trustedHtml(html: string): TrustedHTML | string {
+    return policy?.createHTML(html) ?? html;
+  }
+</script>
+
 <script lang="ts">
   import './layout.css';
 
@@ -19,4 +31,4 @@
 {@render children()}
 
 <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-{@html `<script type="application/ld+json">${JSON.stringify(jsonld)}</script >` }
+{@html trustedHtml(`<script type="application/ld+json">${JSON.stringify(jsonld)}</script >`)}

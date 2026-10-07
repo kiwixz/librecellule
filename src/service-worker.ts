@@ -19,7 +19,7 @@ self.addEventListener('install', (ev) => {
     const response = await fetch(fallback);
     if (!response.ok)
       throw new Error(`${fallback}: ${response.status}`);
-    await cache.put(fallback, new Response(await response.blob()));
+    await cache.put(fallback, new Response(await response.blob(), { headers: response.headers }));
   })());
 });
 

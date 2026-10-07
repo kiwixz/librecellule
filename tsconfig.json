@@ -3,6 +3,7 @@
     "compilerOptions": {
         "allowArbitraryExtensions": true,
         "forceConsistentCasingInFileNames": true,
-        "strict": true
+        "strict": true,
+        "types": ["trusted-types"]
     }
 }
