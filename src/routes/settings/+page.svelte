@@ -36,6 +36,10 @@
       Automatically finish to foundations
       <input type="checkbox" class="toggle" bind:checked={bindableSettings.autoWin} />
     </label>
+    <label class="label field">
+      Optimized layout
+      <input type="checkbox" class="toggle" bind:checked={bindableSettings.optimizedLayout} />
+    </label>
   </main>
 
   <p class="absolute bottom-2 right-2 text-sm">

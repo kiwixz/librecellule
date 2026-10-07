@@ -15,7 +15,7 @@
   const suitStr = $derived(['spade', 'heart', 'diamond', 'club'][props.card?.suit ?? -1]);
 </script>
 
-<svg width="100%" viewBox="0 0 {width} {height}">
+<svg viewBox="0 0 {width} {height}">
   {#if props.card}
     <use href="{spritesheet}#{rankStr}_{suitStr}" />
   {:else}
@@ -23,3 +23,9 @@
         rx="4" fill="#0004" />
   {/if}
 </svg>
+
+<style>
+  svg {
+    inline-size: 100%;
+  }
+</style>

@@ -3,17 +3,23 @@ import database from './database';
 
 export interface Settings {
   autoWin: boolean;
+  optimizedLayout: boolean;
 }
 
 class SettingsStore {
   #data: Settings = $state({
     autoWin: true,
+    optimizedLayout: true,
   });
 
   #loaded: Promise<void> | null = browser ? this.#load().catch(console.error) : null;
 
   get autoWin(): boolean {
     return this.#data.autoWin;
+  }
+
+  get optimizedLayout(): boolean {
+    return this.#data.optimizedLayout;
   }
 
   async mutate<T>(callback: (settings: Settings) => T): Promise<T> {

@@ -182,8 +182,8 @@
   }
 </script>
 
-<div class="select-none">
-  <div class="flex">
+<div class="board select-none" class:optimized={settings.optimizedLayout}>
+  <div class="cells flex">
     <div class="piles">
       {#each board.depots as card, cellIdx (cellIdx)}
         {@const ref: DepotCardRef = { zone: BoardZone.Depots, cellIdx }}
@@ -243,7 +243,7 @@
                     <Card card={column[cardIdx]} />
                   {/snippet}
                   {#if cardIdx < column.length - 1}
-                    <div class="mt-[round(40%,1px)]">
+                    <div class="fan">
                       {@render recurse(cardIdx + 1)}
                     </div>
                   {/if}
@@ -260,11 +260,48 @@
 </div>
 
 <style>
+  .board {
+    margin-inline: auto;
+    max-width: 110lvmin;
+  }
+
   .piles {
     display: flex;
     padding: 2%;
     align-items: start;
     gap: 1%;
+  }
+
+  .fan {
+    margin-block-start: round(40%, 1px);
+  }
+
+  @media (max-aspect-ratio: 5/9) {
+    .board.optimized {
+      writing-mode: sideways-lr;
+      width: 100%;
+      height: 100svh;
+      padding-bottom: 3.5rem;
+      overflow: auto;
+
+      .piles {
+        padding: 1%;
+        padding-bottom: 0;
+        gap: .5%;
+      }
+
+      .cells {
+        gap: 1%;
+      }
+
+      .cells > *, .piles > :global(*) {
+        flex: 1;
+      }
+
+      .fan {
+        margin-block-start: round(20%, 1px);
+      }
+    }
   }
 
   .drag-destination {
