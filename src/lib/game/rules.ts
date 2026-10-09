@@ -7,11 +7,18 @@ import { ints } from '$lib/range';
 import { createTuple, generateTuple } from '$lib/tuple';
 import { BoardZone, cardAt } from './board';
 
-export function isTableauSequence(sequence: DeepReadonly<Card[]>): boolean {
-  const color = (card: Readonly<Card>) => card.suit === 1 || card.suit === 2;
+export enum Color {
+  Black,
+  Red,
+}
 
+export function color(suit: number): Color {
+  return suit === 1 || suit === 2 ? Color.Red : Color.Black;
+}
+
+export function isTableauSequence(sequence: DeepReadonly<Card[]>): boolean {
   for (let i = 1; i < sequence.length; ++i) {
-    if (color(sequence[i]) === color(sequence[i - 1]) || sequence[i].rank !== sequence[i - 1].rank - 1)
+    if (color(sequence[i].suit) === color(sequence[i - 1].suit) || sequence[i].rank !== sequence[i - 1].rank - 1)
       return false;
   }
 
