@@ -25,7 +25,7 @@ export class GameStore {
   #historyHead = -1;
   #historyRewind = $state(0);
 
-  #loaded: Promise<void> | null = browser ? this.#load().catch(console.error) : null;
+  #loading: Promise<void> | null = browser ? this.#load().catch(console.error) : null;
 
   get seed(): string {
     return this.#data.seed;
@@ -56,21 +56,21 @@ export class GameStore {
   }
 
   async undo(): Promise<void> {
-    await this.#loaded;
+    await this.#loading;
 
     if (this.canUndo())
       await this.#restore(this.#historyRewind + 1);
   }
 
   async redo(): Promise<void> {
-    await this.#loaded;
+    await this.#loading;
 
     if (this.canRedo())
       await this.#restore(this.#historyRewind - 1);
   }
 
   async #mutate(callback: (game: Game) => void): Promise<void> {
-    await this.#loaded;
+    await this.#loading;
 
     callback(this.#data);
     await this.#push();

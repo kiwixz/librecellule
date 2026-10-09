@@ -11,8 +11,10 @@
   import { isWon } from '$lib/game/rules';
   import game from '$lib/game/store.svelte';
   import { nextSeed } from '$lib/random';
+  import settings from '$lib/settings.svelte';
   import Board from './board.svelte';
   import Toast from './toast.svelte';
+  import Winnable from './winnable.svelte';
 
   let winDialog: HTMLDialogElement;
   let toast: Toast;
@@ -120,6 +122,10 @@
         </li>
       </ul>
     </div>
+
+    {#if settings.loaded && settings.showWinnable}
+      <Winnable board={game.board} />
+    {/if}
 
     <div class="flex flex-col flex-wrap gap-2">
       {#if game.canRedo()}
