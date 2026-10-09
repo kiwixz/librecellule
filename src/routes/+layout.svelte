@@ -1,16 +1,5 @@
-<script module lang="ts">
-  import { browser } from '$app/environment';
-
-  const policy = browser
-    ? window.trustedTypes?.createPolicy('librecellule', { createHTML: html => html })
-    : null;
-
-  function trustedHtml(html: string): TrustedHTML | string {
-    return policy?.createHTML(html) ?? html;
-  }
-</script>
-
 <script lang="ts">
+  import { trustedHtml } from '$lib/trusted_types';
   import './layout.css';
 
   const { children } = $props();
