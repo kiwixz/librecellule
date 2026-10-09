@@ -40,6 +40,10 @@
       Optimized layout
       <input type="checkbox" class="toggle" bind:checked={bindableSettings.optimizedLayout} />
     </label>
+    <label class="label field">
+      Show if the game is still winnable
+      <input type="checkbox" class="toggle" bind:checked={bindableSettings.showWinnable} />
+    </label>
   </main>
 
   <p class="absolute bottom-2 right-2 text-sm">
