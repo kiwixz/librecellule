@@ -22,6 +22,9 @@ export default {
       fallback: '404.html',
     }),
     inlineStyleThreshold: Infinity,
+    serviceWorker: {
+      register: process.env.NODE_ENV !== 'development',
+    },
     version: {
       name: version(),
     },
