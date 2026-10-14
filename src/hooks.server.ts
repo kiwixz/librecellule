@@ -24,7 +24,7 @@ const minifierOptions: MinifierOptions = {
   decodeEntities: true,
   minifyCSS: (css, type) => type ? css : minifyCss(css),
   minifyJS: true,
-  minifyURLs: url => url.replace(/^\.\//, ''),
+  minifyURLs: url => url.replace(/^\.\/(?=[^/?#])/, ''),
   preserveLineBreaks: true,
   processConditionalComments: true,
   removeAttributeQuotes: true,

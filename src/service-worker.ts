@@ -1,11 +1,11 @@
 /// <reference lib="webworker" />
 /// <reference types="@sveltejs/kit" />
 
-import { build, files, prerendered, version } from '$service-worker';
+import { base, build, files, prerendered, version } from '$service-worker';
 
 const self = globalThis.self as unknown as ServiceWorkerGlobalScope;
 
-const fallback = '/404.html';
+const fallback = `${base}/404.html`;
 
 self.addEventListener('install', (ev) => {
   ev.waitUntil((async () => {
