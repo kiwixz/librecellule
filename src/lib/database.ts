@@ -36,53 +36,67 @@ class Database {
   #database: Promise<IDBPDatabase> | null = browser ? this.#load() : null;
 
   async readSettings(): Promise<Settings | undefined> {
-    return await (await this.#database)!.get('kv', 'settings');
+    return await this.#try(database => database.get('kv', 'settings'));
   }
 
   async writeSettings(settings: DeepReadonly<Settings>): Promise<void> {
-    await (await this.#database)!.put('kv', settings, 'settings');
+    await this.#try(database => database.put('kv', settings, 'settings'));
   }
 
   async readGameHistory(): Promise<GameHistory | undefined> {
-    const transaction = (await this.#database)!.transaction(['kv', 'history']);
-    const kv = transaction.objectStore('kv');
-    const history = transaction.objectStore('history');
+    return await this.#try(async (database) => {
+      const transaction = database.transaction(['kv', 'history']);
+      const kv = transaction.objectStore('kv');
+      const history = transaction.objectStore('history');
 
-    const [games, head, rewind] = await Promise.all([
-      history.getAll(),
-      history.openKeyCursor(null, 'prev'),
-      kv.get('historyRewind'),
-    ]);
-    if (!head)
-      return undefined;
+      const [games, head, rewind] = await Promise.all([
+        history.getAll(),
+        history.openKeyCursor(null, 'prev'),
+        kv.get('historyRewind'),
+      ]);
+      if (!head)
+        return undefined;
 
-    return {
-      games,
-      head: head.key as number,
-      rewind: Math.min(rewind ?? 0, games.length - 1),
-    };
+      return {
+        games,
+        head: head.key as number,
+        rewind: Math.min(rewind ?? 0, games.length - 1),
+      };
+    });
   }
 
   async writeGameHistory(head: number, game: DeepReadonly<Game>): Promise<void> {
-    const transaction = (await this.#database)!.transaction(['kv', 'history'], 'readwrite');
-    const kv = transaction.objectStore('kv');
-    const history = transaction.objectStore('history');
+    await this.#try(async (database) => {
+      const transaction = database.transaction(['kv', 'history'], 'readwrite');
+      const kv = transaction.objectStore('kv');
+      const history = transaction.objectStore('history');
 
-    await Promise.all([
-      history.delete(IDBKeyRange.upperBound(head - maxGameHistoryLength)),
-      history.delete(IDBKeyRange.lowerBound(head, true)),
-      history.put(game, head),
-      kv.put(0, 'historyRewind'),
-      transaction.done,
-    ]);
+      await Promise.all([
+        history.delete(IDBKeyRange.upperBound(head - maxGameHistoryLength)),
+        history.delete(IDBKeyRange.lowerBound(head, true)),
+        history.put(game, head),
+        kv.put(0, 'historyRewind'),
+        transaction.done,
+      ]);
+    });
   }
 
   async writeGameHistoryRewind(rewind: number): Promise<void> {
-    await (await this.#database)!.put('kv', rewind, 'historyRewind');
+    await this.#try(database => database.put('kv', rewind, 'historyRewind'));
   }
 
   async #load(): Promise<IDBPDatabase> {
     return await openDB('data', 20261000, { upgrade });
+  }
+
+  async #try<T>(operation: (database: IDBPDatabase) => Promise<T>): Promise<T | undefined> {
+    try {
+      return await operation((await this.#database)!);
+    }
+    catch (ex) {
+      console.error(ex);
+      return undefined;
+    }
   }
 }
 

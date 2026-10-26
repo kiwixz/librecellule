@@ -9,7 +9,7 @@
   const { params }: PageProps = $props();
 
   onMount(async () => {
-    await game.reset(params.seed).catch(console.error);
+    await game.reset(params.seed);
     await goto(resolve('/'), { replaceState: true });
   });
 </script>

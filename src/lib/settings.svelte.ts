@@ -12,7 +12,7 @@ class SettingsStore {
     optimizedLayout: true,
   });
 
-  #loaded: Promise<void> | null = browser ? this.#load().catch(console.error) : null;
+  #loaded: Promise<void> | null = browser ? this.#load() : null;
 
   get autoWin(): boolean {
     return this.#data.autoWin;

@@ -25,7 +25,7 @@ export class GameStore {
   #historyHead = -1;
   #historyRewind = $state(0);
 
-  #loaded: Promise<void> | null = browser ? this.#load().catch(console.error) : null;
+  #loaded: Promise<void> | null = browser ? this.#load() : null;
 
   get seed(): string {
     return this.#data.seed;
