@@ -22,11 +22,12 @@
   let confettiTimer: ReturnType<typeof setTimeout>;
 
   function onkeydown(ev: KeyboardEvent): void {
-    if ((ev.ctrlKey || ev.metaKey) && ev.key === 'z') {
+    const key = ev.key.toLowerCase();
+    if ((ev.ctrlKey || ev.metaKey) && !ev.shiftKey && key === 'z') {
       ev.preventDefault();
       game.undo();
     }
-    else if ((ev.ctrlKey || ev.metaKey) && (ev.key === 'y' || ev.key === 'Z')) {
+    else if ((ev.ctrlKey || ev.metaKey) && (key === 'y' || key === 'z')) {
       ev.preventDefault();
       game.redo();
     }
