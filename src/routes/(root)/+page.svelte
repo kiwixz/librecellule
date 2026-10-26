@@ -40,10 +40,11 @@
     let delay = 1000 / 30;
     const burst = () => {
       fireConfetti({
-        particleCount: 7,
+        colors: ['#fff', '#f00', '#000'],
+        disableForReducedMotion: true,
+        particleCount: 4,
         spread: 90,
         ticks: 400,
-        disableForReducedMotion: true,
       });
 
       ++delay;
