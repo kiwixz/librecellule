@@ -19,6 +19,7 @@
 
   const won = $derived(isWon(game.board));
 
+  const fireConfetti = confetti.create(undefined, { resize: true });
   let confettiTimer: ReturnType<typeof setTimeout>;
 
   function onkeydown(ev: KeyboardEvent): void {
@@ -38,7 +39,7 @@
 
     let delay = 1000 / 30;
     const burst = () => {
-      confetti({
+      fireConfetti({
         particleCount: 7,
         spread: 90,
         ticks: 400,
