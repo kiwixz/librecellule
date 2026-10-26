@@ -34,4 +34,7 @@ export default {
       name: version(),
     },
   },
+  vitePlugin: {
+    dynamicCompileOptions: () => process.env.VITEST ? { generate: 'client' } : undefined,
+  },
 };
