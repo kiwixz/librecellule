@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import { onDestroy } from 'svelte';
   import { on } from 'svelte/events';
 
   const props: {
@@ -7,12 +8,16 @@
     handle?: Snippet;
     onStart?: (event: PointerEvent) => boolean;
     onMove?: (event: PointerEvent) => void;
-    onEnd?: (event: PointerEvent, cancelled: boolean) => void;
+    onEnd?: (event: PointerEvent | null, cancelled: boolean) => void;
   } = $props();
 
   let self: HTMLElement;
   let dragging = $state(false);
-  let pointer: number;
+
+  onDestroy(() => {
+    if (dragging)
+      props.onEnd?.(null, true);
+  });
 
   function onpointerdown(ev: PointerEvent): void {
     if (ev.button !== 0 || dragging)
@@ -22,7 +27,7 @@
       return;
 
     dragging = true;
-    pointer = ev.pointerId;
+    const pointer = ev.pointerId;
     self.setPointerCapture(pointer);
     const startX = ev.x;
     const startY = ev.y;

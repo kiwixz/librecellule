@@ -165,15 +165,15 @@
     };
   }
 
-  function onDragEnd(ref: MovableCardRef): (ev: PointerEvent, cancelled: boolean) => void {
-    return (ev: PointerEvent, cancelled: boolean) => {
+  function onDragEnd(ref: MovableCardRef): (ev: PointerEvent | null, cancelled: boolean) => void {
+    return (ev: PointerEvent | null, cancelled: boolean) => {
       highlightedDestination = null;
       dragging = false;
 
       if (cancelled)
         return;
 
-      let destination = findDragDestination(ref, ev);
+      let destination = findDragDestination(ref, ev!);
       if (!destination)
         return;
 
