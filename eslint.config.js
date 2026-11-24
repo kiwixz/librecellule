@@ -1,8 +1,7 @@
 import path from 'node:path';
-import { includeIgnoreFile } from '@eslint/compat';
 import js from '@eslint/js';
 import stylistic from '@stylistic/eslint-plugin';
-import { defineConfig } from 'eslint/config';
+import { defineConfig, includeIgnoreFile } from 'eslint/config';
 import svelte from 'eslint-plugin-svelte';
 import globals from 'globals';
 import svelteConfig from './svelte.config.js';
@@ -20,6 +19,7 @@ export default defineConfig(
     rules: {
       'no-undef': 'off',
 
+      '@stylistic/list-style': 'off',
       '@stylistic/member-delimiter-style': ['error', {
         multiline: { delimiter: 'semi' },
         singleline: { delimiter: 'semi' },
