@@ -1,7 +1,7 @@
+import fc from 'fast-check';
 import { expect, suite, test } from 'vitest';
-import { formatBoard, formatCells, formatTableau, parseBoard, parseCard, parseCells, parseTableau } from '$lib/game/notation';
-import { deal } from '$lib/game/rules';
-import { Generator } from '$lib/random';
+import { formatBoard, formatCard, formatCells, formatTableau, parseBoard, parseCard, parseCells, parseTableau } from '$lib/game/notation';
+import * as arbitraries from './arbitraries';
 
 suite('notation', () => {
   test('cards should parse to their rank and suit', () => {
@@ -20,6 +20,12 @@ suite('notation', () => {
       expect(() => parseCard(text), text).toThrow('Invalid card');
   });
 
+  test('formatted cards should parse back to the same card', () => {
+    fc.assert(fc.property(arbitraries.card, (card) => {
+      expect(parseCard(formatCard(card))).toEqual(card);
+    }));
+  });
+
   test('cells should parse card by card', () => {
     expect(parseCells('As __ Kc __')).toEqual([
       { rank: 0, suit: 0 },
@@ -30,11 +36,9 @@ suite('notation', () => {
   });
 
   test('formatted cells should parse back to the same cards', () => {
-    const board = deal(new Generator('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'));
-    board.depots[1] = board.tableau[0].pop()!;
-    board.depots[3] = board.tableau[1].pop()!;
-
-    expect(parseCells(formatCells(board.depots))).toEqual(board.depots);
+    fc.assert(fc.property(arbitraries.cells, (cells) => {
+      expect(parseCells(formatCells(cells))).toEqual(cells);
+    }));
   });
 
   test('tableaus should parse column by column', () => {
@@ -51,9 +55,9 @@ suite('notation', () => {
   });
 
   test('formatted tableaus should parse back to the same board', () => {
-    const board = deal(new Generator('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'));
-
-    expect(parseTableau(formatTableau(board.tableau))).toEqual(board.tableau);
+    fc.assert(fc.property(arbitraries.tableau, (tableau) => {
+      expect(parseTableau(formatTableau(tableau))).toEqual(tableau);
+    }));
   });
 
   test('boards should parse zone by zone', () => {
@@ -78,9 +82,8 @@ suite('notation', () => {
   });
 
   test('formatted boards should parse back to the same board', () => {
-    const board = deal(new Generator('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'));
-    board.depots[2] = board.tableau[2].pop()!;
-
-    expect(parseBoard(formatBoard(board))).toEqual(board);
+    fc.assert(fc.property(arbitraries.board, (board) => {
+      expect(parseBoard(formatBoard(board))).toEqual(board);
+    }));
   });
 });

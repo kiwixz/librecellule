@@ -8,10 +8,13 @@ export interface Card {
   rank: number;
 }
 
+export type Cells = Tuple<Card | null, 4>;
+export type Tableau = Tuple<Card[], 8>;
+
 export interface Board {
-  depots: Tuple<Card | null, 4>;
-  foundations: Tuple<Card | null, 4>;
-  tableau: Tuple<Card[], 8>;
+  depots: Cells;
+  foundations: Cells;
+  tableau: Tableau;
 }
 
 export enum BoardZone {
